@@ -1,0 +1,198 @@
+import { safeParseXfcc, XfccError, type ParseOptions, type XfccElement } from './index.ts';
+
+/** Maximum length of a SPIFFE ID in bytes, per the SPIFFE-ID standard. */
+const MAX_SPIFFE_ID_LENGTH = 2048;
+
+export type SpiffeErrorCode =
+  | 'NO_PEER'
+  | 'NOT_ONE_URI'
+  | 'NOT_ONE_SAN'
+  | 'NOT_SPIFFE'
+  | 'INVALID_SPIFFE_ID';
+
+/**
+ * Thrown when the nearest element does not carry exactly one valid SPIFFE ID.
+ * The message never contains input, so it is safe to log.
+ */
+export class SpiffeError extends Error {
+  override readonly name = 'SpiffeError';
+  readonly code: SpiffeErrorCode;
+
+  constructor(code: SpiffeErrorCode, message: string) {
+    // The stack of an error about untrusted input says nothing useful.
+    const { stackTraceLimit } = Error;
+    Error.stackTraceLimit = 0;
+    super(`${code}: ${message}`);
+    Error.stackTraceLimit = stackTraceLimit;
+    this.code = code;
+  }
+}
+
+/** A validated SPIFFE ID, split into its parts. */
+export interface SpiffeId {
+  /** The full ID, e.g. `spiffe://cluster.local/ns/payments/sa/api`. */
+  readonly id: string;
+  /** The trust domain, e.g. `cluster.local`. */
+  readonly trustDomain: string;
+  /** The path, e.g. `/ns/payments/sa/api`. Always starts with `/`. */
+  readonly path: string;
+  /** `payments` when the path is exactly `/ns/<namespace>/sa/<account>` (Istio), else `null`. */
+  readonly namespace: string | null;
+  /** `api` when the path is exactly `/ns/<namespace>/sa/<account>` (Istio), else `null`. */
+  readonly serviceAccount: string | null;
+}
+
+// Anchored, no nested quantifiers: linear time. A trust domain is at most 255
+// bytes, per the SPIFFE-ID standard.
+const SPIFFE_ID = /^spiffe:\/\/([a-z0-9._-]{1,255})(\/[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)*)$/;
+const ISTIO_PATH = /^\/ns\/([A-Za-z0-9._-]+)\/sa\/([A-Za-z0-9._-]+)$/;
+
+const isDotSegment = (path: string): boolean =>
+  path.split('/').some((segment) => segment === '.' || segment === '..');
+
+export interface SpiffeIdOptions {
+  /**
+   * Also reject an element with any DNS SAN. Defaults to `false`, since many
+   * real certificates have both. In the text format a crafted URI SAN
+   * `spiffe://td/a;DNS=b` reads as both, so set this if you read `dns` too.
+   */
+  readonly requireSingleSan?: boolean;
+}
+
+/** The options of `getPeerSpiffeId`: those of `parseXfcc`, plus `SpiffeIdOptions`. */
+export interface PeerSpiffeIdOptions extends ParseOptions, SpiffeIdOptions {}
+
+// Returns an error message, or undefined when the options are valid.
+const checkSpiffeIdOptions = (options: SpiffeIdOptions | null | undefined): string | undefined => {
+  if (typeof options !== 'object' || options === null || Array.isArray(options)) {
+    return 'options must be an object';
+  }
+  if (!Object.keys(options).every((key) => key === 'requireSingleSan')) {
+    return 'options has an unknown key';
+  }
+  const { requireSingleSan } = options;
+  if (requireSingleSan !== undefined && typeof requireSingleSan !== 'boolean') {
+    return 'requireSingleSan is out of range';
+  }
+  return undefined;
+};
+
+/**
+ * Reads the SPIFFE ID of the client certificate in `element`.
+ *
+ * The element must have exactly one URI SAN: in the text format, a crafted SAN
+ * can look like two. That check cannot tell whether a crafted SAN forged the
+ * whole element, so only pass an element you know a proxy of yours wrote. The
+ * ID must be a workload ID (trust domain plus a non-empty path) that matches
+ * the SPIFFE-ID standard, with a lowercase scheme. `issuer` is ignored, and
+ * so is `dns` unless `options.requireSingleSan` is set; the README explains
+ * why.
+ *
+ * @throws {SpiffeError} if there is not exactly one valid SPIFFE ID.
+ * @throws {TypeError} if `options` is invalid.
+ */
+export const spiffeIdOf = (element: XfccElement, options: SpiffeIdOptions = {}): SpiffeId => {
+  const invalid = checkSpiffeIdOptions(options);
+  if (invalid !== undefined) {
+    throw new TypeError(invalid);
+  }
+  const [uri, ...rest] = element.uri;
+  if (uri === undefined || rest.length > 0) {
+    throw new SpiffeError('NOT_ONE_URI', 'expected exactly one URI SAN');
+  }
+  if (options.requireSingleSan === true && element.dns.length > 0) {
+    throw new SpiffeError('NOT_ONE_SAN', 'expected no SAN besides the URI SAN');
+  }
+  if (!uri.startsWith('spiffe://')) {
+    throw new SpiffeError('NOT_SPIFFE', 'URI SAN is not a SPIFFE ID');
+  }
+  // The regex only admits ASCII, so the string length is the byte length.
+  const match = uri.length > MAX_SPIFFE_ID_LENGTH ? null : SPIFFE_ID.exec(uri);
+  const trustDomain = match?.[1];
+  const path = match?.[2];
+  if (trustDomain === undefined || path === undefined || isDotSegment(path)) {
+    throw new SpiffeError('INVALID_SPIFFE_ID', 'URI SAN is not a valid SPIFFE ID');
+  }
+  const istio = ISTIO_PATH.exec(path);
+  return Object.freeze({
+    id: uri,
+    trustDomain,
+    path,
+    namespace: istio?.[1] ?? null,
+    serviceAccount: istio?.[2] ?? null,
+  });
+};
+
+/** The result of `safeGetPeerSpiffeId`: the ID, or the error `getPeerSpiffeId` would throw. */
+export type SpiffeIdResult =
+  | { readonly ok: true; readonly value: SpiffeId }
+  | { readonly ok: false; readonly error: XfccError | SpiffeError };
+
+const fail = (error: XfccError | SpiffeError): SpiffeIdResult =>
+  Object.freeze({ ok: false, error });
+
+/**
+ * Like `getPeerSpiffeId`, but returns the failure as `{ ok: false, error }`
+ * instead of throwing. Header parse failures are returned as the `XfccError`
+ * `parseXfcc` would throw. Invalid `options` are reported the same way, and a
+ * `header` of the wrong type still throws `TypeError`.
+ */
+export const safeGetPeerSpiffeId = (
+  header: string | readonly string[] | undefined,
+  options: PeerSpiffeIdOptions,
+): SpiffeIdResult => {
+  // Anything that is not an object is passed through for `safeParseXfcc` to
+  // reject.
+  let parseOptions: ParseOptions = options;
+  let spiffeOptions: SpiffeIdOptions = {};
+  if (typeof options === 'object' && options !== null && !Array.isArray(options)) {
+    const { requireSingleSan, ...rest } = options;
+    parseOptions = rest;
+    spiffeOptions = requireSingleSan === undefined ? {} : { requireSingleSan };
+    const invalid = checkSpiffeIdOptions(spiffeOptions);
+    if (invalid !== undefined) {
+      return fail(new XfccError('INVALID_OPTION', invalid));
+    }
+  }
+  const parsed = safeParseXfcc(header, parseOptions);
+  if (!parsed.ok) {
+    return fail(parsed.error);
+  }
+  // The LAST element was appended by the proxy closest to this service.
+  const nearest = parsed.value.at(-1);
+  if (nearest === undefined) {
+    return fail(new SpiffeError('NO_PEER', 'header has no elements'));
+  }
+  try {
+    return Object.freeze({ ok: true, value: spiffeIdOf(nearest, spiffeOptions) });
+  } catch (error) {
+    if (error instanceof SpiffeError) {
+      return fail(error);
+    }
+    throw error;
+  }
+};
+
+/**
+ * Returns the SPIFFE ID of the mTLS peer that connected to the proxy closest
+ * to this service: the last element of the header.
+ *
+ * Takes the options of `parseXfcc`, so `format` is required and `maxElements`
+ * defaults to 1 (set it to the exact number of proxy hops), plus
+ * `requireSingleSan` from `spiffeIdOf`. If a proxy that is not the caller sits
+ * between the caller and this service, this returns that proxy's ID.
+ *
+ * @throws {XfccError} if the header is malformed.
+ * @throws {SpiffeError} if there is no element, or it does not carry exactly
+ *   one valid SPIFFE ID.
+ */
+export const getPeerSpiffeId = (
+  header: string | readonly string[] | undefined,
+  options: PeerSpiffeIdOptions,
+): SpiffeId => {
+  const result = safeGetPeerSpiffeId(header, options);
+  if (!result.ok) {
+    throw result.error;
+  }
+  return result.value;
+};

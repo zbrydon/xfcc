@@ -1,0 +1,4801 @@
+{
+ "headers": [
+  {
+   "input": "By=http://frontend.lyft.com;Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Subject=\"CN=Test Client,OU=Lyft,L=San Francisco,ST=CA,C=US\";URI=http://testclient.lyft.com;DNS=lyft.com;DNS=www.lyft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [
+       "http://frontend.lyft.com"
+      ],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": "CN=Test Client,OU=Lyft,L=San Francisco,ST=CA,C=US",
+      "uri": [
+       "http://testclient.lyft.com"
+      ],
+      "dns": [
+       "lyft.com",
+       "www.lyft.com"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Subject=\"\";URI=;Issuer=\"\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": "",
+      "uri": [],
+      "dns": [],
+      "issuer": ""
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Issuer=\"CN=CA\"",
+   "options": {
+    "format": "text"
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Subject=\"description=caf\\C3\\A9,UID=\\  #pad\\ +CN=evil\\,O=Admin,OU=a\\\"b\\\\c,O=Lyft,C=US\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": "description=caf\\C3\\A9,UID=\\  #pad\\ +CN=evil\\,O=Admin,OU=a\\\"b\\\\c,O=Lyft,C=US",
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Subject=\"CN=a\\\\\";URI=http://x",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": "CN=a\\\\",
+      "uri": [
+       "http://x"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": " Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688 , Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688,\tHash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=http://c ",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     },
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     },
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "http://c"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "by=http://A;HASH=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;sUbJeCt=\"CN=X\";uRi=http://B;dns=Lyft.Com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [
+       "http://A"
+      ],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": "CN=X",
+      "uri": [
+       "http://B"
+      ],
+      "dns": [
+       "Lyft.Com"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "By=http://y/?k==v;Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=http://x/?a=b&c=d",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [
+       "http://y/?k==v"
+      ],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "http://x/?a=b&c=d"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=10e95ee5e02e24df12c126c4a7cae01672587a0b844928932ce72d805297040f;Cert=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true,
+    "requireCertHash": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "10e95ee5e02e24df12c126c4a7cae01672587a0b844928932ce72d805297040f",
+      "cert": "-----BEGIN CERTIFICATE-----\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\n-----END CERTIFICATE-----\n",
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=10e95ee5e02e24df12c126c4a7cae01672587a0b844928932ce72d805297040f;Cert=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A\";Chain=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A-----BEGIN%20CERTIFICATE-----%0AMIIBszCCAVmgAwIBAgIUeNLYcgkF8gom0W77O4Ql1b44LmYwCgYIKoZIzj0EAwIw%0ALjELMAkGA1UEBhMCVVMxDTALBgNVBAoMBEx5ZnQxEDAOBgNVBAMMB1Rlc3QgQ0Ew%0AIBcNMjYxMDMwMTA1OTMwWhgPMjEyNjEwMDYxMDU5MzBaMC4xCzAJBgNVBAYTAlVT%0AMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMFkwEwYHKoZIzj0CAQYI%0AKoZIzj0DAQcDQgAET3KVl9XFADczssUZizYA0kcO3OuWtAxAdOhb4tI7JBrFePfq%0A3wtzr3%2FBMQKglK6P1AOQMB7YmY1PDiiv8X8iYqNTMFEwHQYDVR0OBBYEFO9%2Bzk5N%0A7tXC3m%2FcMtKvU%2F97oBYdMB8GA1UdIwQYMBaAFO9%2Bzk5N7tXC3m%2FcMtKvU%2F97oBYd%0AMA8GA1UdEwEB%2FwQFMAMBAf8wCgYIKoZIzj0EAwIDSAAwRQIgBSYsSywoJgiCJq4P%0AXEqicMew%2FoBKdNekMkLWmXYh5JgCIQDnK4v%2BpH6A1Le8uNslUr9%2FQroFn2MePH2d%0AxfvKdwB%2Fng%3D%3D%0A-----END%20CERTIFICATE-----%0A\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true,
+    "requireCertHash": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "10e95ee5e02e24df12c126c4a7cae01672587a0b844928932ce72d805297040f",
+      "cert": "-----BEGIN CERTIFICATE-----\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\n-----END CERTIFICATE-----\n",
+      "presentedChain": [
+       "-----BEGIN CERTIFICATE-----\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\n-----END CERTIFICATE-----\n",
+       "-----BEGIN CERTIFICATE-----\nMIIBszCCAVmgAwIBAgIUeNLYcgkF8gom0W77O4Ql1b44LmYwCgYIKoZIzj0EAwIw\nLjELMAkGA1UEBhMCVVMxDTALBgNVBAoMBEx5ZnQxEDAOBgNVBAMMB1Rlc3QgQ0Ew\nIBcNMjYxMDMwMTA1OTMwWhgPMjEyNjEwMDYxMDU5MzBaMC4xCzAJBgNVBAYTAlVT\nMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMFkwEwYHKoZIzj0CAQYI\nKoZIzj0DAQcDQgAET3KVl9XFADczssUZizYA0kcO3OuWtAxAdOhb4tI7JBrFePfq\n3wtzr3/BMQKglK6P1AOQMB7YmY1PDiiv8X8iYqNTMFEwHQYDVR0OBBYEFO9+zk5N\n7tXC3m/cMtKvU/97oBYdMB8GA1UdIwQYMBaAFO9+zk5N7tXC3m/cMtKvU/97oBYd\nMA8GA1UdEwEB/wQFMAMBAf8wCgYIKoZIzj0EAwIDSAAwRQIgBSYsSywoJgiCJq4P\nXEqicMew/oBKdNekMkLWmXYh5JgCIQDnK4v+pH6A1Le8uNslUr9/QroFn2MePH2d\nxfvKdwB/ng==\n-----END CERTIFICATE-----\n"
+      ],
+      "subject": null,
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Cert=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true,
+    "requireCertHash": true
+   },
+   "expected": {
+    "code": "HASH_MISMATCH",
+    "offset": 0
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true,
+    "requireCertHash": true
+   },
+   "expected": {
+    "code": "MISSING_CERT_OR_HASH",
+    "offset": 0
+   }
+  },
+  {
+   "input": "Cert=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true,
+    "requireCertHash": true
+   },
+   "expected": {
+    "code": "MISSING_HASH",
+    "offset": 0
+   }
+  },
+  {
+   "input": "Hash=10e95ee5e02e24df12c126c4a7cae01672587a0b844928932ce72d805297040f;Cert=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A\",Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Cert=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true,
+    "requireCertHash": true
+   },
+   "expected": {
+    "code": "HASH_MISMATCH",
+    "offset": 873
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688,Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+   "options": {
+    "format": "text"
+   },
+   "expected": {
+    "code": "TOO_MANY_ELEMENTS",
+    "offset": 70
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688,",
+   "options": {
+    "format": "text"
+   },
+   "expected": {
+    "code": "EMPTY_ELEMENT",
+    "offset": 70
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688,,Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_ELEMENT",
+    "offset": 70
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688, ,Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_ELEMENT",
+    "offset": 71
+   }
+  },
+  {
+   "input": ",",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_ELEMENT",
+    "offset": 0
+   }
+  },
+  {
+   "input": "",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY",
+    "offset": 0
+   }
+  },
+  {
+   "input": " \t ",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY",
+    "offset": 0
+   }
+  },
+  {
+   "input": "URI=http://a;",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_PAIR",
+    "offset": 13
+   }
+  },
+  {
+   "input": "URI=http://a;;URI=b:",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_PAIR",
+    "offset": 13
+   }
+  },
+  {
+   "input": "URI=http://a;,URI=b:",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_PAIR",
+    "offset": 13
+   }
+  },
+  {
+   "input": ";URI=a:",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "MISSING_EQUALS",
+    "offset": 0
+   }
+  },
+  {
+   "input": "URI",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "MISSING_EQUALS",
+    "offset": 0
+   }
+  },
+  {
+   "input": "URI=a:;DNS",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 4
+   }
+  },
+  {
+   "input": "=a:",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "UNKNOWN_KEY",
+    "offset": 0
+   }
+  },
+  {
+   "input": "Foo=bar",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "UNKNOWN_KEY",
+    "offset": 0
+   }
+  },
+  {
+   "input": " URI =a:",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "UNKNOWN_KEY",
+    "offset": 1
+   }
+  },
+  {
+   "input": "URI=a:; DNS=a.b",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 4
+   }
+  },
+  {
+   "input": "URI=a: ;DNS=a.b",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 7
+   }
+  },
+  {
+   "input": "URI= a:",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 5
+   }
+  },
+  {
+   "input": "URI=a: b",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 7
+   }
+  },
+  {
+   "input": "Subject=CN=a",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "QUOTE_REQUIRED",
+    "offset": 8
+   }
+  },
+  {
+   "input": "Issuer=CN=a",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "QUOTE_REQUIRED",
+    "offset": 7
+   }
+  },
+  {
+   "input": "Cert=",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "QUOTE_REQUIRED",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Chain=x",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "QUOTE_REQUIRED",
+    "offset": 6
+   }
+  },
+  {
+   "input": "Subject=\"CN=a",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "UNTERMINATED_QUOTE",
+    "offset": 8
+   }
+  },
+  {
+   "input": "Subject=\"CN=a\\\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "UNTERMINATED_QUOTE",
+    "offset": 8
+   }
+  },
+  {
+   "input": "Subject=\"CN=a\\",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "UNTERMINATED_QUOTE",
+    "offset": 8
+   }
+  },
+  {
+   "input": "Subject=\"CN=a\"x",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "UNEXPECTED_AFTER_QUOTE",
+    "offset": 14
+   }
+  },
+  {
+   "input": "Subject=\"CN=a\"\"\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "UNEXPECTED_AFTER_QUOTE",
+    "offset": 14
+   }
+  },
+  {
+   "input": "Subject=\"CN=a\" ;URI=a:",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 15
+   }
+  },
+  {
+   "input": "URI=a\"b",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_ESCAPE",
+    "offset": 5
+   }
+  },
+  {
+   "input": "URI=a\\b",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_ESCAPE",
+    "offset": 5
+   }
+  },
+  {
+   "input": "URI=\"a:\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_ESCAPE",
+    "offset": 4
+   }
+  },
+  {
+   "input": "By=\"a:\";Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_ESCAPE",
+    "offset": 3
+   }
+  },
+  {
+   "input": "Hash=\"468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_ESCAPE",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=\"a.b\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_ESCAPE",
+    "offset": 74
+   }
+  },
+  {
+   "input": "By=",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": 3
+   }
+  },
+  {
+   "input": "DNS=",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": 4
+   }
+  },
+  {
+   "input": "Hash=",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Cert=\"\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Chain=\"\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": 6
+   }
+  },
+  {
+   "input": "Cert=\"a\\b\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_ESCAPE",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Hash=abc",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_HASH",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Hash=468ED33BE74EEE6556D90C0149C1309E9BA61D6425303443C0748A02DD8DE688",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_HASH",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "DUPLICATE_KEY",
+    "offset": 75
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Hash=x",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_HASH",
+    "offset": 75
+   }
+  },
+  {
+   "input": "Subject=\"CN=a\";Subject=\"CN=a\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "DUPLICATE_KEY",
+    "offset": 23
+   }
+  },
+  {
+   "input": "Issuer=\"CN=a\";ISSUER=\"CN=b\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "DUPLICATE_KEY",
+    "offset": 21
+   }
+  },
+  {
+   "input": "Cert=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A\";Cert=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "DUPLICATE_KEY",
+    "offset": 808
+   }
+  },
+  {
+   "input": "Chain=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A\";Chain=\"-----BEGIN%20CERTIFICATE-----%0AMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT%0AAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw%0ANTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC%0AQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV%0ABAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL%2BKV1H8F%0ASR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m%0A8VEbMXDqZVjWOKOBgTB%2FMD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5%0AZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh%0AmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P%2Fe6AWHTAK%0ABggqhkjOPQQDAgNIADBFAiEA%2FS3LX6voF%2B19ykUhV7lv4k21otHU7qCHOQ1ZkQnw%0A6RcCIF5l89FAL6Fq%2FMI0v81LTLPHjmgvi1OzqFCKi47wZhYY%0A-----END%20CERTIFICATE-----%0A\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "DUPLICATE_KEY",
+    "offset": 810
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=spiffe://td/admin;URI=",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "DUPLICATE_KEY",
+    "offset": 96
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=;URI=a:",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "DUPLICATE_KEY",
+    "offset": 79
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=;URI=",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "DUPLICATE_KEY",
+    "offset": 79
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=a.com;URI=spiffe://admin",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "KEY_ORDER",
+    "offset": 80
+   }
+  },
+  {
+   "input": "URI=a:;Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 4
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:,URI=b:",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:;DNS=admin.internal",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:;Issuer=\"CN=Trusted\"",
+   "options": {
+    "format": "text"
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:;Issuer=\"CN=Trusted\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "URI=relative",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 4
+   }
+  },
+  {
+   "input": "DNS=-bad.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 4
+   }
+  },
+  {
+   "input": "DNS=*.*.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 4
+   }
+  },
+  {
+   "input": "Subject=\"CN=a;O=b\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 8
+   }
+  },
+  {
+   "input": "Subject=\"not a dn\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 8
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Subject=\"CN=a\tb\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 78
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Issuer=\"CN=a\tb\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 77
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Subject=\"CN=a\u007fb\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 83
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;Subject=\"CN=ad\\09min\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": "CN=ad\\09min",
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Cert=\"%ZZ\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_PERCENT_ENCODING",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Cert=\"abc+def\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_PERCENT_ENCODING",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Cert=\"abc\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_PEM",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Cert=\"%C3%A9\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_PEM",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Cert=\"%\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_PERCENT_ENCODING",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Cert=\"%2\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_PERCENT_ENCODING",
+    "offset": 5
+   }
+  },
+  {
+   "input": "Chain=\"abc\"",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_PEM",
+    "offset": 6
+   }
+  },
+  {
+   "input": "URI=http://a\n",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 12
+   }
+  },
+  {
+   "input": "URI=http://a\r\n",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 12
+   }
+  },
+  {
+   "input": "URI=\u0000",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 4
+   }
+  },
+  {
+   "input": "URI=http://\u00e9",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 11
+   }
+  },
+  {
+   "input": "\u007f",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 0
+   }
+  },
+  {
+   "input": "URI=http://\ud800",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 11
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\"]}]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "MISSING_EQUALS",
+    "offset": 0
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"spiffe://x/,By=spiffe://test/proxy;Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a\"]}},{\"uri\":[\"spiffe://test/victim\"]}]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "MISSING_EQUALS",
+    "offset": 0
+   }
+  },
+  {
+   "input": "URI=http://abcdefghijk",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true,
+    "maxLength": 20
+   },
+   "expected": {
+    "code": "TOO_LONG",
+    "offset": 20
+   }
+  },
+  {
+   "input": "\u00e9\u00e9\u00e9\u00e9",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true,
+    "maxLength": 4
+   },
+   "expected": {
+    "code": "TOO_LONG",
+    "offset": 4
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:,Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=b:,Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=c:",
+   "options": {
+    "format": "text",
+    "maxElements": 2,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=http://frontend.lyft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "http://frontend.lyft.com"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=spiffe://cluster.local/ns/default/sa/foo",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "spiffe://cluster.local/ns/default/sa/foo"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=urn:uuid:6e8bc430-9c3a-11d9-9669-0800200c9a66",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "urn:uuid:6e8bc430-9c3a-11d9-9669-0800200c9a66"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=http://x/?a=b&c=d",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "http://x/?a=b&c=d"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=/relative",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=no-scheme",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=http://x/%zz",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=urn:",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:#f",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://:80",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://:80"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[::1]:80/",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://[::1]:80/"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[v1.x]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://[v1.x]"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[V1.x:]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://[V1.x:]"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[v.x]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[v1.]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[v1x]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[1:2:3:4:5:6:7::]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://[1:2:3:4:5:6:7::]"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[1:2:3:4:5:6:7:8::]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[fe80::1%25en0]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[::ffff:1.2.3.4]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://[::ffff:1.2.3.4]"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[::ffff:01.2.3.4]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[::1",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[1.2.3.4]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[::g]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:b:c",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a:b:c"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:?q",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a:?q"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:/",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a:/"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://u:p@h:1/x",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://u:p@h:1/x"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://u@[::1]:9/",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://u@[::1]:9/"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://u@[bad]/",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://u@h:x",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://a:1:2",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://a:b",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://a:1/x",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://a:1/x"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://[::1]x",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://x[::1]",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://%41",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://%41"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://%4",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=1a:b",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a+b.c-d:e",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a+b.c-d:e"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:b%2",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:b%zz",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=A:b",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "A:b"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a_b:c",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://h/p?q#f",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://h/p?q#f"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://h?q",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://h?q"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://h#f",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://h#f"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:b#f#g",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:b?c?d",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a:b?c?d"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://u@h/%",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://u@%4/",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://u@h?x",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a://u@h?x"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:%41",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a:%41"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a://h/[",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:[",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=:a",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=lyft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [
+       "lyft.com"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=www.lyft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [
+       "www.lyft.com"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=localhost",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [
+       "localhost"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=1password.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [
+       "1password.com"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=xn--bcher-kva.example",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [
+       "xn--bcher-kva.example"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=*.lyft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [
+       "*.lyft.com"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=a-b.c",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [
+       "a-b.c"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [
+       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=.",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=lyft.com.",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=.lyft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=lyft..com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=-lyft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=lyft-.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=ly_ft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=*",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=*.",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=w*.lyft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=www.*.lyft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=*.*.lyft.com",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=lyft,evil",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "MISSING_EQUALS",
+    "offset": 79
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a",
+   "options": {
+    "format": "text",
+    "maxElements": 8,
+    "allowTextIssuer": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [
+       "a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{\"by\":[\"http://frontend.lyft.com\"],\"hash\":\"468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688\",\"subject\":\"CN=Test Client,OU=Lyft,L=San Francisco,ST=CA,C=US\",\"uri\":[\"http://testclient.lyft.com\"],\"dns\":[\"lyft.com\",\"www.lyft.com\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [
+       "http://frontend.lyft.com"
+      ],
+      "hash": "468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688",
+      "cert": null,
+      "presentedChain": [],
+      "subject": "CN=Test Client,OU=Lyft,L=San Francisco,ST=CA,C=US",
+      "uri": [
+       "http://testclient.lyft.com"
+      ],
+      "dns": [
+       "lyft.com",
+       "www.lyft.com"
+      ],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{\"hash\":\"468ed33be74eee6556d90c0149c1309e\",\"uri\":[\"a:b\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_HASH",
+    "offset": null
+   }
+  },
+  {
+   "input": "[]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY",
+    "offset": null
+   }
+  },
+  {
+   "input": "[ ] ",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": null,
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{},{}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": null,
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     },
+     {
+      "by": [],
+      "hash": null,
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{},{}]",
+   "options": {
+    "format": "json"
+   },
+   "expected": {
+    "code": "TOO_MANY_ELEMENTS",
+    "offset": null
+   }
+  },
+  {
+   "input": " [ { \"uri\" : [ \"a:a\" ] } ]\t",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": null,
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a:a"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{\"hash\":\"10e95ee5e02e24df12c126c4a7cae01672587a0b844928932ce72d805297040f\",\"cert\":\"-----BEGIN CERTIFICATE-----\\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\\n-----END CERTIFICATE-----\\n\",\"chain\":[\"-----BEGIN CERTIFICATE-----\\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\\n-----END CERTIFICATE-----\\n\",\"-----BEGIN CERTIFICATE-----\\nMIIBszCCAVmgAwIBAgIUeNLYcgkF8gom0W77O4Ql1b44LmYwCgYIKoZIzj0EAwIw\\nLjELMAkGA1UEBhMCVVMxDTALBgNVBAoMBEx5ZnQxEDAOBgNVBAMMB1Rlc3QgQ0Ew\\nIBcNMjYxMDMwMTA1OTMwWhgPMjEyNjEwMDYxMDU5MzBaMC4xCzAJBgNVBAYTAlVT\\nMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMFkwEwYHKoZIzj0CAQYI\\nKoZIzj0DAQcDQgAET3KVl9XFADczssUZizYA0kcO3OuWtAxAdOhb4tI7JBrFePfq\\n3wtzr3/BMQKglK6P1AOQMB7YmY1PDiiv8X8iYqNTMFEwHQYDVR0OBBYEFO9+zk5N\\n7tXC3m/cMtKvU/97oBYdMB8GA1UdIwQYMBaAFO9+zk5N7tXC3m/cMtKvU/97oBYd\\nMA8GA1UdEwEB/wQFMAMBAf8wCgYIKoZIzj0EAwIDSAAwRQIgBSYsSywoJgiCJq4P\\nXEqicMew/oBKdNekMkLWmXYh5JgCIQDnK4v+pH6A1Le8uNslUr9/QroFn2MePH2d\\nxfvKdwB/ng==\\n-----END CERTIFICATE-----\\n\"],\"subject\":\"description=caf\\\\C3\\\\A9,UID=\\\\  #pad\\\\ +CN=evil\\\\,O=Admin,OU=a\\\\\\\"b\\\\\\\\c,O=Lyft,C=US\",\"issuer\":\"CN=Test CA,O=Lyft,C=US\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8,
+    "requireCertHash": true
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": "10e95ee5e02e24df12c126c4a7cae01672587a0b844928932ce72d805297040f",
+      "cert": "-----BEGIN CERTIFICATE-----\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\n-----END CERTIFICATE-----\n",
+      "presentedChain": [
+       "-----BEGIN CERTIFICATE-----\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\n-----END CERTIFICATE-----\n",
+       "-----BEGIN CERTIFICATE-----\nMIIBszCCAVmgAwIBAgIUeNLYcgkF8gom0W77O4Ql1b44LmYwCgYIKoZIzj0EAwIw\nLjELMAkGA1UEBhMCVVMxDTALBgNVBAoMBEx5ZnQxEDAOBgNVBAMMB1Rlc3QgQ0Ew\nIBcNMjYxMDMwMTA1OTMwWhgPMjEyNjEwMDYxMDU5MzBaMC4xCzAJBgNVBAYTAlVT\nMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMFkwEwYHKoZIzj0CAQYI\nKoZIzj0DAQcDQgAET3KVl9XFADczssUZizYA0kcO3OuWtAxAdOhb4tI7JBrFePfq\n3wtzr3/BMQKglK6P1AOQMB7YmY1PDiiv8X8iYqNTMFEwHQYDVR0OBBYEFO9+zk5N\n7tXC3m/cMtKvU/97oBYdMB8GA1UdIwQYMBaAFO9+zk5N7tXC3m/cMtKvU/97oBYd\nMA8GA1UdEwEB/wQFMAMBAf8wCgYIKoZIzj0EAwIDSAAwRQIgBSYsSywoJgiCJq4P\nXEqicMew/oBKdNekMkLWmXYh5JgCIQDnK4v+pH6A1Le8uNslUr9/QroFn2MePH2d\nxfvKdwB/ng==\n-----END CERTIFICATE-----\n"
+      ],
+      "subject": "description=caf\\C3\\A9,UID=\\  #pad\\ +CN=evil\\,O=Admin,OU=a\\\"b\\\\c,O=Lyft,C=US",
+      "uri": [],
+      "dns": [],
+      "issuer": "CN=Test CA,O=Lyft,C=US"
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{\"hash\":\"468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688\",\"cert\":\"-----BEGIN CERTIFICATE-----\\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\\n-----END CERTIFICATE-----\\n\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8,
+    "requireCertHash": true
+   },
+   "expected": {
+    "code": "HASH_MISMATCH",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"hash\":\"468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8,
+    "requireCertHash": true
+   },
+   "expected": {
+    "code": "MISSING_CERT_OR_HASH",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"chain\":[\"-----BEGIN CERTIFICATE-----\\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\\n-----END CERTIFICATE-----\\n-----BEGIN CERTIFICATE-----\\nMIIBszCCAVmgAwIBAgIUeNLYcgkF8gom0W77O4Ql1b44LmYwCgYIKoZIzj0EAwIw\\nLjELMAkGA1UEBhMCVVMxDTALBgNVBAoMBEx5ZnQxEDAOBgNVBAMMB1Rlc3QgQ0Ew\\nIBcNMjYxMDMwMTA1OTMwWhgPMjEyNjEwMDYxMDU5MzBaMC4xCzAJBgNVBAYTAlVT\\nMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMFkwEwYHKoZIzj0CAQYI\\nKoZIzj0DAQcDQgAET3KVl9XFADczssUZizYA0kcO3OuWtAxAdOhb4tI7JBrFePfq\\n3wtzr3/BMQKglK6P1AOQMB7YmY1PDiiv8X8iYqNTMFEwHQYDVR0OBBYEFO9+zk5N\\n7tXC3m/cMtKvU/97oBYdMB8GA1UdIwQYMBaAFO9+zk5N7tXC3m/cMtKvU/97oBYd\\nMA8GA1UdEwEB/wQFMAMBAf8wCgYIKoZIzj0EAwIDSAAwRQIgBSYsSywoJgiCJq4P\\nXEqicMew/oBKdNekMkLWmXYh5JgCIQDnK4v+pH6A1Le8uNslUr9/QroFn2MePH2d\\nxfvKdwB/ng==\\n-----END CERTIFICATE-----\\n\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_PEM",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"cert\":\"-----BEGIN CERTIFICATE-----\\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\\n-----END CERTIFICATE-----\\n-----BEGIN CERTIFICATE-----\\nMIIBszCCAVmgAwIBAgIUeNLYcgkF8gom0W77O4Ql1b44LmYwCgYIKoZIzj0EAwIw\\nLjELMAkGA1UEBhMCVVMxDTALBgNVBAoMBEx5ZnQxEDAOBgNVBAMMB1Rlc3QgQ0Ew\\nIBcNMjYxMDMwMTA1OTMwWhgPMjEyNjEwMDYxMDU5MzBaMC4xCzAJBgNVBAYTAlVT\\nMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMFkwEwYHKoZIzj0CAQYI\\nKoZIzj0DAQcDQgAET3KVl9XFADczssUZizYA0kcO3OuWtAxAdOhb4tI7JBrFePfq\\n3wtzr3/BMQKglK6P1AOQMB7YmY1PDiiv8X8iYqNTMFEwHQYDVR0OBBYEFO9+zk5N\\n7tXC3m/cMtKvU/97oBYdMB8GA1UdIwQYMBaAFO9+zk5N7tXC3m/cMtKvU/97oBYd\\nMA8GA1UdEwEB/wQFMAMBAf8wCgYIKoZIzj0EAwIDSAAwRQIgBSYsSywoJgiCJq4P\\nXEqicMew/oBKdNekMkLWmXYh5JgCIQDnK4v+pH6A1Le8uNslUr9/QroFn2MePH2d\\nxfvKdwB/ng==\\n-----END CERTIFICATE-----\\n\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_PEM",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"cert\":\"-----BEGIN CERTIFICATE-----\\r\\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\\r\\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\\r\\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\\r\\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\\r\\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\\r\\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\\r\\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\\r\\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\\r\\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\\r\\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\\r\\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\\r\\n-----END CERTIFICATE-----\\r\\n\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": null,
+      "cert": "-----BEGIN CERTIFICATE-----\r\nMIICADCCAaagAwIBAgIJANjIWy50ejONMAoGCCqGSM49BAMCMC4xCzAJBgNVBAYT\r\nAlVTMQ0wCwYDVQQKDARMeWZ0MRAwDgYDVQQDDAdUZXN0IENBMCAXDTI2MTAzMDEw\r\nNTkzMFoYDzIxMjYxMDA2MTA1OTMwWjBXMQswCQYDVQQGEwJVUzELMAkGA1UECAwC\r\nQ0ExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAsMBEx5ZnQxFDASBgNV\r\nBAMMC1Rlc3QgQ2xpZW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEL+KV1H8F\r\nSR4sLlrqZHgQkrrpYKyXw1SrZxkVdaQrkaAAmcPrXZSZJjrYBV6hHGEU9CWq7g2m\r\n8VEbMXDqZVjWOKOBgTB/MD0GA1UdEQQ2MDSGGmh0dHA6Ly90ZXN0Y2xpZW50Lmx5\r\nZnQuY29tgghseWZ0LmNvbYIMd3d3Lmx5ZnQuY29tMB0GA1UdDgQWBBSCNlnXf5uh\r\nmWKxZ8uf8j8zIBIJXzAfBgNVHSMEGDAWgBTvfs5OTe7Vwt5v3DLSr1P/e6AWHTAK\r\nBggqhkjOPQQDAgNIADBFAiEA/S3LX6voF+19ykUhV7lv4k21otHU7qCHOQ1ZkQnw\r\n6RcCIF5l89FAL6Fq/MI0v81LTLPHjmgvi1OzqFCKi47wZhYY\r\n-----END CERTIFICATE-----\r\n",
+      "presentedChain": [],
+      "subject": null,
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{\"URI\":[\"a:\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 6
+   }
+  },
+  {
+   "input": "[{\"foo\":\"x\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 6
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\"],\"uri\":[\"c:d\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 20
+   }
+  },
+  {
+   "input": "[{\"hash\":\"a\",\"hash\":\"b\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 18
+   }
+  },
+  {
+   "input": "[{\"__proto__\":[\"a:b\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 12
+   }
+  },
+  {
+   "input": "[{\"constructor\":\"x\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 14
+   }
+  },
+  {
+   "input": "[{\"ur\\u0069\":[\"a:b\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": null,
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a:b"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{\"ur\\u0069\":[\"a:b\"],\"uri\":[\"a:b\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 25
+   }
+  },
+  {
+   "input": "[{\"uri\":null}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 11
+   }
+  },
+  {
+   "input": "[{\"uri\":[null]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 12
+   }
+  },
+  {
+   "input": "[{\"uri\":\"a:\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 11
+   }
+  },
+  {
+   "input": "[{\"hash\":[\"x\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 8
+   }
+  },
+  {
+   "input": "[{\"hash\":1}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 9
+   }
+  },
+  {
+   "input": "[{\"uri\":[]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"subject\":\"\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"issuer\":\"\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"hash\":\"\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"cert\":\"\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"chain\":[\"\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"dns\":[]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY_VALUE",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:\\u0000\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"dns\":[\"lyft.com\\u002c\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"subject\":\"CN=a\\u0000\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"subject\":\"CN=a\\nb\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"subject\":\"CN=ad\\tmin\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"issuer\":\"CN=a\\u202eb\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"subject\":\"CN=caf\\u00e9\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"subject\":\"CN=caf\\\\C3\\\\A9\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": null,
+      "cert": null,
+      "presentedChain": [],
+      "subject": "CN=caf\\C3\\A9",
+      "uri": [],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"http://caf\\u00e9\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"cert\":\"x\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_PEM",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"chain\":[\"x\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_PEM",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"subject\":\"CN\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"subject\":\"CN=a\\u007fb\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\u0061:b\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": null,
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a:b"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:\\/b\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "value": [
+     {
+      "by": [],
+      "hash": null,
+      "cert": null,
+      "presentedChain": [],
+      "subject": null,
+      "uri": [
+       "a:/b"
+      ],
+      "dns": [],
+      "issuer": null
+     }
+    ]
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:,Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=x\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"by\":[\"a:,Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=x\"],\"uri\":[\"spiffe://td/a\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\ud83d\\ude00\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"by\":[\"bad\"],\"chain\":[\"x\"],\"uri\":[\"bad\"],\"dns\":[\"-\"],\"hash\":\"x\",\"cert\":\"x\",\"subject\":\"x\",\"issuer\":\"x\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"chain\":[\"x\"],\"uri\":[\"bad\"],\"dns\":[\"-\"],\"hash\":\"x\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_PEM",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"bad\"],\"dns\":[\"-\"],\"hash\":\"x\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_URI",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"dns\":[\"-\"],\"hash\":\"x\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"hash\":\"x\",\"cert\":\"x\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_HASH",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"cert\":\"x\",\"subject\":\"x\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_PEM",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"subject\":\"x\",\"issuer\":\"x\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": null
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"bad\"]},{\"foo\":1}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 22
+   }
+  },
+  {
+   "input": "URI=a:",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 0
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;URI=a:",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 0
+   }
+  },
+  {
+   "input": " ",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "EMPTY",
+    "offset": 0
+   }
+  },
+  {
+   "input": "\u00e9",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 0
+   }
+  },
+  {
+   "input": "[{\"subject\":\"CN=\u00e9\"}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_CHAR",
+    "offset": 16
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8,
+    "maxLength": 4
+   },
+   "expected": {
+    "code": "TOO_LONG",
+    "offset": 4
+   }
+  },
+  {
+   "input": "[1]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 1
+   }
+  },
+  {
+   "input": "[null]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 4
+   }
+  },
+  {
+   "input": "[{]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 2
+   }
+  },
+  {
+   "input": "[{}",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 2
+   }
+  },
+  {
+   "input": "[",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 0
+   }
+  },
+  {
+   "input": "{\"uri\":[\"a:b\"]}",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 0
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\"]}]x",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 17
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\"],}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 16
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\"]},]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 17
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\"]}],[{\"uri\":[\"b:\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 17
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\",]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 15
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\"]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 14
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\"",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 13
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 12
+   }
+  },
+  {
+   "input": "[{\"uri\":[",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 8
+   }
+  },
+  {
+   "input": "[{\"uri\":",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 7
+   }
+  },
+  {
+   "input": "[{\"uri\"",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 6
+   }
+  },
+  {
+   "input": "[{\"uri",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 5
+   }
+  },
+  {
+   "input": "[{\"",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 2
+   }
+  },
+  {
+   "input": "[{",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 1
+   }
+  },
+  {
+   "input": "[{\"uri\" [\"a:b\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 8
+   }
+  },
+  {
+   "input": "[{uri:[\"a:b\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 2
+   }
+  },
+  {
+   "input": "[{'uri':['a:b']}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 2
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\"] \"dns\":[\"a.b\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 16
+   }
+  },
+  {
+   "input": "[{} {}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 4
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\ud800\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 16
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\udc00\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 15
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\ud83d\\u0041\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 21
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\ud83dx\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 16
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\u12\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 15
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\u12G4\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 15
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\x\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 11
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 14
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a\tb\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 11
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"a:b\\",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 13
+   }
+  },
+  {
+   "input": "[{\"uri\":[\"\\ud83d\\uZZZZ\"]}]",
+   "options": {
+    "format": "json",
+    "maxElements": 8
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 21
+   }
+  }
+ ],
+ "dns": [
+  {
+   "input": "",
+   "expected": {
+    "value": []
+   }
+  },
+  {
+   "input": "CN=Test Client,OU=Lyft,L=San Francisco,ST=CA,C=US",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "Test Client",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "OU",
+       "value": "Lyft",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "L",
+       "value": "San Francisco",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "ST",
+       "value": "CA",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "C",
+       "value": "US",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "UID=jsmith,DC=example,DC=net",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "UID",
+       "value": "jsmith",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "DC",
+       "value": "example",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "DC",
+       "value": "net",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "OU=Sales+CN=J.  Smith,DC=example,DC=net",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "OU",
+       "value": "Sales",
+       "encoding": "string"
+      },
+      {
+       "type": "CN",
+       "value": "J.  Smith",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "DC",
+       "value": "example",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "DC",
+       "value": "net",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=James \\\"Jim\\\" Smith\\, III,DC=example,DC=net",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "James \"Jim\" Smith, III",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "DC",
+       "value": "example",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "DC",
+       "value": "net",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=Before\\0dAfter,DC=example,DC=net",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "Before\rAfter",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "DC",
+       "value": "example",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "DC",
+       "value": "net",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "1.3.6.1.4.1.1466.0=#04024869",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "1.3.6.1.4.1.1466.0",
+       "value": "04024869",
+       "encoding": "hex"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=Lu\\C4\\8Di\\C4\\87",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "Lu\u010di\u0107",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=evil\\,O=Admin,O=Lyft",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "evil,O=Admin",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "O",
+       "value": "Lyft",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=\\  #pad\\ ",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "  #pad ",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=\\#x",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "#x",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=a#b=c",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "a#b=c",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=#0A0b",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "0a0b",
+       "encoding": "hex"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "description=caf\\C3\\A9,UID=\\  #pad\\ +CN=evil\\,O=Admin,OU=a\\\"b\\\\c,O=Lyft,C=US",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "description",
+       "value": "caf\u00e9",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "UID",
+       "value": "  #pad ",
+       "encoding": "string"
+      },
+      {
+       "type": "CN",
+       "value": "evil,O=Admin",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "OU",
+       "value": "a\"b\\c",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "O",
+       "value": "Lyft",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "C",
+       "value": "US",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 2
+   }
+  },
+  {
+   "input": "=x",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 0
+   }
+  },
+  {
+   "input": "CN=a,",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 5
+   }
+  },
+  {
+   "input": ",CN=a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 0
+   }
+  },
+  {
+   "input": "CN=a+",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 5
+   }
+  },
+  {
+   "input": "CN=a,,O=b",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 5
+   }
+  },
+  {
+   "input": "CN=a;O=b",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 4
+   }
+  },
+  {
+   "input": "CN=a\"b",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 4
+   }
+  },
+  {
+   "input": "CN=a<b",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 4
+   }
+  },
+  {
+   "input": "CN=a>b",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 4
+   }
+  },
+  {
+   "input": "CN= a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 3
+   }
+  },
+  {
+   "input": "CN=a ",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 4
+   }
+  },
+  {
+   "input": "CN=#",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 4
+   }
+  },
+  {
+   "input": "CN=#0",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 5
+   }
+  },
+  {
+   "input": "CN=#0g",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 6
+   }
+  },
+  {
+   "input": "CN=#00x",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 6
+   }
+  },
+  {
+   "input": "CN=a\\",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 5
+   }
+  },
+  {
+   "input": "CN=a\\x",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 6
+   }
+  },
+  {
+   "input": "CN=a\\4",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 6
+   }
+  },
+  {
+   "input": "CN=a\\4x",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 7
+   }
+  },
+  {
+   "input": "CN=a\\00",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 3
+   }
+  },
+  {
+   "input": "CN=\\C3",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 3
+   }
+  },
+  {
+   "input": "CN=\\FF",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 3
+   }
+  },
+  {
+   "input": "C N=a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 2
+   }
+  },
+  {
+   "input": "1=a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 1
+   }
+  },
+  {
+   "input": "1.=a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 3
+   }
+  },
+  {
+   "input": "01.2=a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 1
+   }
+  },
+  {
+   "input": "1.02=a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 3
+   }
+  },
+  {
+   "input": "-CN=a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 0
+   }
+  },
+  {
+   "input": "CN=a=b,=c",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 7
+   }
+  },
+  {
+   "input": "CN=\u00e9",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "\u00e9",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=\ud800",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": null
+   }
+  },
+  {
+   "input": "CN=\\EF\\BB\\BFa",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "\ufeffa",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=\ud83d\ude00,O=\\F0\\9F\\98\\80",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "\ud83d\ude00",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "O",
+       "value": "\ud83d\ude00",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=a\u0000b",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 4
+   }
+  },
+  {
+   "input": "\u00e9=a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 0
+   }
+  },
+  {
+   "input": "CN=\\ED\\A0\\80",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 3
+   }
+  },
+  {
+   "input": "1.2=a+3.4=#00,CN=b",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "1.2",
+       "value": "a",
+       "encoding": "string"
+      },
+      {
+       "type": "3.4",
+       "value": "00",
+       "encoding": "hex"
+      }
+     ],
+     [
+      {
+       "type": "CN",
+       "value": "b",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 2
+   }
+  },
+  {
+   "input": "1.2.",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 4
+   }
+  },
+  {
+   "input": "0.0=a",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "0.0",
+       "value": "a",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "0=a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 1
+   }
+  },
+  {
+   "input": "CN=a\\ b",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "a b",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=\\ ",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": " ",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "CN=  a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 3
+   }
+  },
+  {
+   "input": "a-b1=c",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "a-b1",
+       "value": "c",
+       "encoding": "string"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "input": "1.2x=a",
+   "expected": {
+    "code": "INVALID_DN",
+    "offset": 4
+   }
+  },
+  {
+   "input": "CN=#00+O=b,C=#FF",
+   "expected": {
+    "value": [
+     [
+      {
+       "type": "CN",
+       "value": "00",
+       "encoding": "hex"
+      },
+      {
+       "type": "O",
+       "value": "b",
+       "encoding": "string"
+      }
+     ],
+     [
+      {
+       "type": "C",
+       "value": "ff",
+       "encoding": "hex"
+      }
+     ]
+    ]
+   }
+  }
+ ]
+}

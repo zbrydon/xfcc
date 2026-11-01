@@ -1,0 +1,61 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint & Test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        # The newest must match devEngines.runtime in package.json. The oldest is
+        # the minimum in package.json engines.
+        node: [22.18.0, 24.22.1, 26.12.1]
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm and Node.js
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
+        with:
+          runtime: node@${{ matrix.node }}
+          install: false
+
+      # `--no-runtime`, so scripts use the Node set up above and not the one the
+      # lockfile pins.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --no-runtime
+
+      # A wrong Node here would still pass, and hide a real failure on that version.
+      - name: Check Node.js version
+        run: test "$(pnpm exec node -p process.versions.node)" = "$NODE_VERSION"
+        env:
+          NODE_VERSION: ${{ matrix.node }}
+
+      - name: Build
+        run: pnpm build
+
+      - name: Lint
+        if: matrix.node == '26.12.1'
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test:ci
+
+      - name: Smoke test built package
+        run: node scripts/smoke.mts

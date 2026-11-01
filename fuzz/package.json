@@ -1,0 +1,22 @@
+{
+  "name": "xfcc-fuzz",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Coverage-guided fuzz targets for xfcc, kept apart so the fuzzer's dependencies stay out of the main install",
+  "type": "module",
+  "devDependencies": {
+    "@jazzer.js/core": "4.0.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.16.1",
+      "onFail": "warn"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "24.22.1",
+      "onFail": "download"
+    }
+  }
+}

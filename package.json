@@ -1,0 +1,74 @@
+{
+  "name": "xfcc",
+  "version": "0.0.0",
+  "description": "Strict, fail-closed parser for Envoy's x-forwarded-client-cert (XFCC) header",
+  "keywords": [
+    "envoy",
+    "istio",
+    "mtls",
+    "x-forwarded-client-cert",
+    "xfcc"
+  ],
+  "homepage": "https://github.com/zbrydon/xfcc-node#readme",
+  "bugs": {
+    "url": "https://github.com/zbrydon/xfcc-node/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zbrydon/xfcc-node.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown",
+    "format": "pnpm build && oxlint --fix && oxfmt",
+    "lint": "pnpm build && oxlint && oxfmt --check",
+    "bench": "pnpm build && vitest bench --run --reporter=verbose",
+    "test": "vitest run",
+    "test:ci": "vitest run --coverage",
+    "version": "changeset version && oxfmt",
+    "fuzz": "fuzz/run.sh"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "0.18.5",
+    "@changesets/cli": "3.0.3",
+    "@skuba-lib/changesets-changelog": "2.0.0",
+    "@types/node": "22.20.5",
+    "@vitest/coverage-v8": "5.0.5",
+    "fast-check": "4.10.2",
+    "oxfmt": "0.74.0",
+    "oxlint": "1.89.0",
+    "oxlint-tsgolint": "7.0.2005",
+    "publint": "0.3.25",
+    "tsdown": "0.23.1",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.16.1",
+      "onFail": "warn"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "26.12.1",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

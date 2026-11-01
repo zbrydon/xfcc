@@ -1,0 +1,14 @@
+# The same settings as the root pnpm-workspace.yaml. This file also makes `fuzz/`
+# its own workspace, with its own lockfile.
+pmOnFail: error
+verifyDepsBeforeRun: install
+blockExoticSubdeps: true
+minimumReleaseAge: 10080
+strictDepBuilds: true
+trustPolicy: no-downgrade
+allowBuilds: {}
+# Required by @babel/core, through Jazzer.js. A security backport published by an
+# npm CLI maintainer in July 2023, days after 7.5.4 had provenance, so
+# `no-downgrade` flags it.
+trustPolicyExclude:
+  - semver@6.3.1

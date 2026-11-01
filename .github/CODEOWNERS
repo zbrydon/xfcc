@@ -1,0 +1,8 @@
+# Changes to the trust boundary need owner review.
+* @zbrydon
+
+/.github/ @zbrydon
+/pnpm-lock.yaml @zbrydon
+/pnpm-workspace.yaml @zbrydon
+/fuzz/pnpm-lock.yaml @zbrydon
+/fuzz/pnpm-workspace.yaml @zbrydon

@@ -1,0 +1,38 @@
+import { MAX_ELEMENTS_LIMIT, MAX_LENGTH_LIMIT, safeParseXfcc } from '../../dist/index.mjs';
+
+import { ok } from './common.mjs';
+
+// The first 7 bytes pick the options, the rest is the header. Sizes are reduced
+// so both sides of every limit (including invalid ones) are reachable.
+export const fuzz = (data) => {
+  if (data.length < 7) {
+    return;
+  }
+  const input = data.subarray(7).toString('utf8');
+  const maxLength = data.readUIntLE(0, 3) % (MAX_LENGTH_LIMIT + 64);
+  const maxElements = data.readUInt16LE(3) % (MAX_ELEMENTS_LIMIT + 8);
+  const options = {
+    maxLength: (data[6] & 4) !== 0 ? maxLength % 256 : maxLength,
+    maxElements: (data[6] & 8) !== 0 ? maxElements % 4 : maxElements,
+    format: (data[5] & 1) === 0 ? 'text' : 'json',
+    requireCertHash: (data[5] & 2) !== 0,
+    allowTextIssuer: (data[5] & 4) !== 0,
+  };
+  const valid =
+    options.maxLength >= 1 &&
+    options.maxLength <= MAX_LENGTH_LIMIT &&
+    options.maxElements >= 1 &&
+    options.maxElements <= MAX_ELEMENTS_LIMIT;
+  const bytes = Buffer.byteLength(input);
+  const result = safeParseXfcc(input, options);
+  if (result.ok) {
+    ok(valid);
+    ok(bytes <= options.maxLength);
+    ok(result.value.length >= 1 && result.value.length <= options.maxElements);
+  } else {
+    ok((result.error.code === 'INVALID_OPTION') === !valid);
+    if (valid && bytes > options.maxLength) {
+      ok(result.error.code === 'TOO_LONG');
+    }
+  }
+};

@@ -1,0 +1,406 @@
+import { readFileSync } from 'node:fs';
+
+import { describe, expect, it } from 'vitest';
+
+import {
+  CA_PEM,
+  CLIENT_PEM,
+  CLIENT_SHA256,
+  errorOf,
+  HASH_A,
+  NASTY_SUBJECT,
+  urlEncode,
+} from '../test/helpers.ts';
+
+import {
+  MAX_ELEMENTS_LIMIT,
+  MAX_LENGTH_LIMIT,
+  parseDistinguishedName,
+  parseXfcc,
+  safeParseXfcc,
+  XfccError,
+  type XfccErrorCode,
+} from './index.ts';
+
+const HASH = HASH_A;
+
+describe('package.json', () => {
+  it('has no runtime dependencies or install scripts', () => {
+    const manifest: unknown = JSON.parse(
+      readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+    );
+    expect(manifest).not.toHaveProperty('dependencies');
+    expect(manifest).not.toHaveProperty('optionalDependencies');
+    expect(manifest).not.toHaveProperty('peerDependencies');
+    for (const script of ['preinstall', 'install', 'postinstall', 'prepare']) {
+      expect(manifest).not.toHaveProperty(['scripts', script]);
+    }
+  });
+});
+
+describe('limits', () => {
+  it('exposes the documented limits', () => {
+    expect(MAX_LENGTH_LIMIT).toBe(1 << 20);
+    expect(MAX_ELEMENTS_LIMIT).toBe(1024);
+  });
+
+  it('defaults maxLength to 64 KiB', () => {
+    const atLimit = `Hash=${HASH};URI=a:`.padEnd(64 * 1024, 'a');
+    expect(safeParseXfcc(atLimit, TEXT).ok).toBe(true);
+    expect(codeOf(() => parseXfcc(`${atLimit}a`, TEXT))).toBe('TOO_LONG');
+  });
+});
+
+const TEXT = { format: 'text' } as const;
+const JSON_FORMAT = { format: 'json' } as const;
+
+const codeOf = (fn: () => unknown): XfccErrorCode => errorOf(fn).code;
+
+describe('parseXfcc', () => {
+  it('parses the Envoy documentation example', () => {
+    expect(
+      parseXfcc(
+        `By=http://frontend.lyft.com;Hash=${HASH};Subject="CN=Test Client,OU=Lyft,L=San Francisco,ST=CA,C=US";URI=http://testclient.lyft.com;DNS=lyft.com;DNS=www.lyft.com`,
+        TEXT,
+      ),
+    ).toEqual([
+      {
+        by: ['http://frontend.lyft.com'],
+        hash: HASH,
+        cert: null,
+        presentedChain: [],
+        subject: 'CN=Test Client,OU=Lyft,L=San Francisco,ST=CA,C=US',
+        uri: ['http://testclient.lyft.com'],
+        dns: ['lyft.com', 'www.lyft.com'],
+        issuer: null,
+      },
+    ]);
+  });
+
+  it('returns a null hash when the JSON element has no hash', () => {
+    expect(parseXfcc('[{"by":["spiffe://edge"]}]', { format: 'json' })[0]?.hash).toBeNull();
+  });
+
+  it('parses the JSON format', () => {
+    const [element] = parseXfcc(
+      `[{"by":["http://frontend.lyft.com"],"hash":"${HASH}","uri":["http://testclient.lyft.com"]}]`,
+      { format: 'json' },
+    );
+    expect(element?.by).toEqual(['http://frontend.lyft.com']);
+    expect(element?.uri).toEqual(['http://testclient.lyft.com']);
+  });
+
+  it('keeps element order so the last element is the nearest proxy', () => {
+    const elements = parseXfcc(
+      `By=spiffe://edge;Hash=${HASH};URI=spiffe://client,By=spiffe://mesh;Hash=${HASH};URI=spiffe://edge`,
+      { format: 'text', maxElements: 2 },
+    );
+    expect(elements.map((e) => e.by[0])).toEqual(['spiffe://edge', 'spiffe://mesh']);
+  });
+
+  it('decodes Cert and Chain and verifies Hash', () => {
+    const header = `Hash=${CLIENT_SHA256};Cert="${urlEncode(CLIENT_PEM)}";Chain="${urlEncode(CLIENT_PEM + CA_PEM)}"`;
+    const options = { format: 'text', requireCertHash: true } as const;
+    const [element] = parseXfcc(header, options);
+    expect(element?.cert).toBe(CLIENT_PEM);
+    expect(element?.presentedChain).toEqual([CLIENT_PEM, CA_PEM]);
+
+    expect(codeOf(() => parseXfcc(header.replace(CLIENT_SHA256, HASH), options))).toBe(
+      'HASH_MISMATCH',
+    );
+    expect(codeOf(() => parseXfcc(`Hash=${HASH}`, options))).toBe('MISSING_CERT_OR_HASH');
+  });
+
+  it('keeps Subject escapes so a forged RDN stays inside its value', () => {
+    const [element] = parseXfcc(`Hash=${HASH};Subject="${NASTY_SUBJECT}"`, TEXT);
+    expect(element?.subject).toBe(NASTY_SUBJECT);
+    const rdns = parseDistinguishedName(NASTY_SUBJECT);
+    expect(rdns[1]).toEqual([
+      { type: 'UID', value: '  #pad ', encoding: 'string' },
+      { type: 'CN', value: 'evil,O=Admin', encoding: 'string' },
+    ]);
+    expect(rdns.some((rdn) => rdn.some((a) => a.type === 'O' && a.value === 'Admin'))).toBe(false);
+  });
+
+  it('returns an empty list when the header is absent', () => {
+    expect(parseXfcc(undefined, TEXT)).toEqual([]);
+  });
+
+  it('allows one element by default', () => {
+    expect(codeOf(() => parseXfcc(`Hash=${HASH},Hash=${HASH}`, TEXT))).toBe('TOO_MANY_ELEMENTS');
+    expect(codeOf(() => parseXfcc('[{"uri":["a:"]},{"uri":["b:"]}]', JSON_FORMAT))).toBe(
+      'TOO_MANY_ELEMENTS',
+    );
+  });
+
+  it('returns a text-format Issuer only when allowTextIssuer is set', () => {
+    // A URI SAN `spiffe://td/x;Issuer="CN=Trusted CA"` emits exactly this.
+    const header = `Hash=${HASH};URI=spiffe://td/x;Issuer="CN=Trusted CA"`;
+    expect(parseXfcc(header, TEXT)[0]?.issuer).toBeNull();
+    expect(parseXfcc(header, { format: 'text', allowTextIssuer: true })[0]?.issuer).toBe(
+      'CN=Trusted CA',
+    );
+    // It is still validated.
+    expect(codeOf(() => parseXfcc(`Hash=${HASH};Issuer="CN"`, TEXT))).toBe('INVALID_DN');
+    expect(parseXfcc('[{"issuer":"CN=CA"}]', JSON_FORMAT)[0]?.issuer).toBe('CN=CA');
+  });
+
+  it.each([undefined, null, {}, { maxElements: 1 }])(
+    'requires format with options %j',
+    (options) => {
+      // @ts-expect-error -- deliberately invalid at runtime
+      expect(codeOf(() => parseXfcc(undefined, options))).toBe('INVALID_OPTION');
+      // @ts-expect-error -- deliberately invalid at runtime
+      expect(codeOf(() => parseXfcc(`Hash=${HASH}`, options))).toBe('INVALID_OPTION');
+    },
+  );
+
+  it('joins repeated header lines with commas', () => {
+    const elements = parseXfcc([`Hash=${HASH};URI=spiffe://a`, `Hash=${HASH};URI=spiffe://b`], {
+      format: 'text',
+      maxElements: 2,
+    });
+    expect(elements.map((e) => e.uri[0])).toEqual(['spiffe://a', 'spiffe://b']);
+    expect(codeOf(() => parseXfcc([], TEXT))).toBe('EMPTY');
+    expect(
+      codeOf(() => parseXfcc(['[{"uri":["a:"]}]', '[{"uri":["b:"]}]'], { format: 'json' })),
+    ).toBe('INVALID_JSON');
+  });
+
+  it('returns deeply frozen results', () => {
+    const elements = parseXfcc(`Hash=${HASH};URI=spiffe://a;DNS=a.example`, TEXT);
+    expect(Object.isFrozen(elements)).toBe(true);
+    expect(Object.isFrozen(elements[0])).toBe(true);
+    expect(Object.isFrozen(elements[0]?.uri)).toBe(true);
+    expect(Object.isFrozen(elements[0]?.dns)).toBe(true);
+    expect(Object.isFrozen(elements[0]?.by)).toBe(true);
+    expect(Object.isFrozen(elements[0]?.presentedChain)).toBe(true);
+  });
+
+  it.each([
+    ['', 'EMPTY'],
+    ['Foo=bar', 'UNKNOWN_KEY'],
+    [`Hash=${HASH};URI=http://a,,URI=http://b`, 'EMPTY_ELEMENT'],
+    [`Hash=${HASH};DNS=a.com;URI=spiffe://admin`, 'KEY_ORDER'],
+    [`Hash=${HASH};URI=spiffe://a,URI=spiffe://admin`, 'MISSING_HASH'],
+    ['Subject=CN=a', 'QUOTE_REQUIRED'],
+    ['Subject="CN=a', 'UNTERMINATED_QUOTE'],
+    ['Hash=abc', 'INVALID_HASH'],
+    [`Hash=${HASH};Hash=${HASH}`, 'DUPLICATE_KEY'],
+    [`Hash=${HASH};URI=spiffe://td/admin;URI=`, 'DUPLICATE_KEY'],
+    ['URI=http://aé', 'INVALID_CHAR'],
+    ['URI=http://a\n', 'INVALID_CHAR'],
+    ['URI=http://\ud800', 'INVALID_CHAR'],
+    [`Hash=${HASH};Cert=abc`, 'QUOTE_REQUIRED'],
+    [`Hash=${HASH};URI="spiffe://a"`, 'INVALID_ESCAPE'],
+    // A text header made to look like JSON is still parsed as text.
+    ['[{"uri":["a:"]}]', 'MISSING_EQUALS'],
+  ] as const)('rejects %j with %s', (header, code) => {
+    // Several hops, so errors in a later element are reached.
+    expect(codeOf(() => parseXfcc(header, { format: 'text', maxElements: 32 }))).toBe(code);
+  });
+
+  it('rejects malformed JSON when format is json', () => {
+    expect(codeOf(() => parseXfcc('[{"uri":["a:"],"uri":["b:"]}]', { format: 'json' }))).toBe(
+      'INVALID_JSON',
+    );
+  });
+
+  it('reports byte offsets and never echoes input', () => {
+    const error = errorOf(() => parseXfcc('URI=http://a;secret-token=x', TEXT));
+    expect(error).toBeInstanceOf(Error);
+    expect(error.name).toBe('XfccError');
+    expect(error.code).toBe('UNKNOWN_KEY');
+    expect(error.offset).toBe(13);
+    expect(error.message).toBe('UNKNOWN_KEY: unknown key (at byte 13)');
+    expect(error.message).not.toContain('secret');
+  });
+
+  it('omits the offset when it is unknown', () => {
+    const error = errorOf(() => parseXfcc('[{"uri":["relative"]}]', { format: 'json' }));
+    expect(error.code).toBe('INVALID_URI');
+    expect(error.offset).toBeUndefined();
+    expect(error.message).toBe('INVALID_URI: value is not an RFC 3986 URI');
+  });
+
+  it('rejects oversized headers', () => {
+    const error = errorOf(() =>
+      parseXfcc(`URI=http://${'a'.repeat(100)}`, { format: 'text', maxLength: 50 }),
+    );
+    expect(error.code).toBe('TOO_LONG');
+    expect(error.offset).toBe(50);
+    expect(codeOf(() => parseXfcc('a'.repeat(64 * 1024 + 1), TEXT))).toBe('TOO_LONG');
+  });
+
+  it('enforces the byte limit for multi-byte input', () => {
+    // 4 UTF-16 units, but more than 4 UTF-8 bytes.
+    expect(codeOf(() => parseXfcc('éééé', { format: 'text', maxLength: 4 }))).toBe('TOO_LONG');
+  });
+
+  it('applies maxElements and format', () => {
+    expect(
+      codeOf(() =>
+        parseXfcc(`Hash=${HASH},Hash=${HASH},Hash=${HASH}`, { format: 'text', maxElements: 2 }),
+      ),
+    ).toBe('TOO_MANY_ELEMENTS');
+    expect(codeOf(() => parseXfcc('[{"uri":["a:"]}]', TEXT))).toBe('MISSING_EQUALS');
+    expect(codeOf(() => parseXfcc('URI=a:', { format: 'json' }))).toBe('INVALID_JSON');
+    expect(
+      parseXfcc(`Hash=${HASH}`, {
+        format: 'text',
+        maxLength: MAX_LENGTH_LIMIT,
+        maxElements: MAX_ELEMENTS_LIMIT,
+      }),
+    ).toHaveLength(1);
+  });
+
+  it.each([
+    { maxLength: 0 },
+    { maxLength: -1 },
+    { maxLength: 1.5 },
+    { maxLength: Number.NaN },
+    { maxLength: MAX_LENGTH_LIMIT + 1 },
+    { maxElements: 0 },
+    { maxElements: MAX_ELEMENTS_LIMIT + 1 },
+    { maxElements: 2 ** 32 + 1 },
+    { format: 'xml' },
+    { format: 'auto' },
+    { requireCertHash: 'yes' },
+    { allowTextIssuer: 1 },
+    { maxLength: '10' },
+    { maxElement: 1 },
+    { verifyHash: true },
+    { require_cert_hash: true },
+  ])('rejects invalid option %j', (option) => {
+    // @ts-expect-error -- deliberately invalid at runtime
+    expect(codeOf(() => parseXfcc('URI=a:', { format: 'text', ...option }))).toBe('INVALID_OPTION');
+  });
+
+  it.each(['text', 1, []])('rejects non-object options %j', (options) => {
+    // @ts-expect-error -- deliberately invalid at runtime
+    expect(codeOf(() => parseXfcc('URI=a:', options))).toBe('INVALID_OPTION');
+  });
+
+  it('validates options even when the header is absent', () => {
+    expect(codeOf(() => parseXfcc(undefined, { format: 'text', maxLength: 0 }))).toBe(
+      'INVALID_OPTION',
+    );
+  });
+
+  it.each([42, null, {}, [1], ['a', 2]])('throws TypeError for header %j', (header) => {
+    // @ts-expect-error -- deliberately invalid at runtime
+    expect(() => parseXfcc(header, TEXT)).toThrow(TypeError);
+  });
+});
+
+describe('XfccError', () => {
+  it('does not capture a stack trace and restores the limit', () => {
+    const limit = Error.stackTraceLimit;
+    const error = errorOf(() => parseXfcc('Foo=bar', TEXT));
+    expect(error.stack).not.toMatch(/\n\s+at /);
+    expect(Error.stackTraceLimit).toBe(limit);
+  });
+});
+
+describe('safeParseXfcc', () => {
+  it('returns the frozen elements on success', () => {
+    const result = safeParseXfcc(`Hash=${HASH}`, TEXT);
+    expect(result).toEqual({ ok: true, value: parseXfcc(`Hash=${HASH}`, TEXT) });
+    expect(Object.isFrozen(result)).toBe(true);
+  });
+
+  it('returns an empty list when the header is absent', () => {
+    expect(safeParseXfcc(undefined, TEXT)).toEqual({ ok: true, value: [] });
+  });
+
+  it('returns the XfccError instead of throwing', () => {
+    const result = safeParseXfcc('URI=http://a;secret-token=x', TEXT);
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error('expected a failure');
+    }
+    expect(result.error).toBeInstanceOf(XfccError);
+    expect(result.error.code).toBe('UNKNOWN_KEY');
+    expect(result.error.offset).toBe(13);
+    expect(Object.isFrozen(result)).toBe(true);
+  });
+
+  it('reports oversized headers and invalid options as failures', () => {
+    expect(safeParseXfcc('a'.repeat(64 * 1024 + 1), TEXT)).toMatchObject({
+      ok: false,
+      error: { code: 'TOO_LONG', offset: 64 * 1024 },
+    });
+    expect(safeParseXfcc('URI=a:', { format: 'text', maxLength: 0 })).toMatchObject({
+      ok: false,
+      error: { code: 'INVALID_OPTION' },
+    });
+    expect(safeParseXfcc('URI=a:', { format: 'text', maxElements: 0 })).toMatchObject({
+      ok: false,
+      error: { code: 'INVALID_OPTION' },
+    });
+  });
+
+  it('still throws TypeError for a header of the wrong type', () => {
+    // @ts-expect-error -- deliberately invalid at runtime
+    expect(() => safeParseXfcc(42, TEXT)).toThrow(TypeError);
+  });
+});
+
+describe('parseDistinguishedName', () => {
+  it('parses RDNs in string order with decoded values', () => {
+    expect(
+      parseDistinguishedName('CN=James \\"Jim\\" Smith\\, III,DC=example+DC=net,1.2.3=#04024869'),
+    ).toEqual([
+      [{ type: 'CN', value: 'James "Jim" Smith, III', encoding: 'string' }],
+      [
+        { type: 'DC', value: 'example', encoding: 'string' },
+        { type: 'DC', value: 'net', encoding: 'string' },
+      ],
+      [{ type: '1.2.3', value: '04024869', encoding: 'hex' }],
+    ]);
+  });
+
+  it('returns frozen results', () => {
+    const rdns = parseDistinguishedName('CN=a');
+    expect(Object.isFrozen(rdns)).toBe(true);
+    expect(Object.isFrozen(rdns[0])).toBe(true);
+    expect(Object.isFrozen(rdns[0]?.[0])).toBe(true);
+  });
+
+  it('parses an empty DN', () => {
+    expect(parseDistinguishedName('')).toEqual([]);
+  });
+
+  it.each(['CN', 'CN=a;O=b', 'CN=a,', 'CN=a\\00'])('rejects %j', (dn) => {
+    const error = errorOf(() => parseDistinguishedName(dn));
+    expect(error.code).toBe('INVALID_DN');
+    expect(typeof error.offset).toBe('number');
+  });
+
+  it('throws TypeError for non-strings', () => {
+    // @ts-expect-error -- deliberately invalid at runtime
+    expect(() => parseDistinguishedName(undefined)).toThrow(TypeError);
+  });
+
+  it.each(['CN=\ud800', 'CN=\udc00', 'CN=a,O=\ud83d'])('rejects the lone surrogate in %j', (dn) => {
+    const error = errorOf(() => parseDistinguishedName(dn));
+    expect(error.code).toBe('INVALID_DN');
+    expect(error.offset).toBeUndefined();
+  });
+
+  it('accepts a surrogate pair', () => {
+    expect(parseDistinguishedName('CN=😀')[0]?.[0]?.value).toBe('😀');
+  });
+
+  it('rejects input over the byte limit', () => {
+    const atLimit = `CN=${'a'.repeat(MAX_LENGTH_LIMIT - 3)}`;
+    expect(parseDistinguishedName(atLimit)).toHaveLength(1);
+    const error = errorOf(() => parseDistinguishedName(`${atLimit}a`));
+    expect(error.code).toBe('TOO_LONG');
+    expect(error.offset).toBe(MAX_LENGTH_LIMIT);
+    // Under the limit in UTF-16 units, over it in UTF-8 bytes.
+    expect(codeOf(() => parseDistinguishedName('é'.repeat(MAX_LENGTH_LIMIT / 2 + 1)))).toBe(
+      'TOO_LONG',
+    );
+  });
+});

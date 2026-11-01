@@ -1,0 +1,12 @@
+pmOnFail: error
+verifyDepsBeforeRun: install
+blockExoticSubdeps: true
+minimumReleaseAge: 10080
+strictDepBuilds: true
+trustPolicy: no-downgrade
+allowBuilds: {}
+# Required by @types/node@22 (pinned to the minimum supported Node). Published
+# by the undici maintainer in 2024, before the package adopted trusted
+# publishing, so `no-downgrade` flags it.
+trustPolicyExclude:
+  - undici-types@6.21.0

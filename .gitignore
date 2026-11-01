@@ -1,0 +1,16 @@
+.npmrc
+
+.idea/*
+.vscode/*
+!.vscode/extensions.json
+
+node_modules/
+/coverage/
+/dist/
+/fuzz/corpus/
+/fuzz/artifacts/
+
+.DS_Store
+*.log
+*.tgz
+*.tsbuildinfo

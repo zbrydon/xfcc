@@ -1,0 +1,47 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:recommended',
+    ':dependencyDashboard',
+    ':semanticCommits',
+    ':timezone(Australia/Melbourne)',
+    'group:monorepos',
+    'helpers:pinGitHubActionDigestsToSemver',
+  ],
+  minimumReleaseAge: '7 days',
+  internalChecksFilter: 'strict',
+  rangeStrategy: 'pin',
+  automerge: false,
+  lockFileMaintenance: {
+    enabled: true,
+    schedule: ['before 6am on monday'],
+  },
+  postUpdateOptions: ['pnpmDedupe'],
+  packageRules: [
+    {
+      groupName: 'oxc',
+      matchPackageNames: ['oxfmt', 'oxlint', 'oxlint-tsgolint'],
+    },
+  ],
+  customManagers: [
+    {
+      customType: 'regex',
+      description: 'pnpm version in package.json devEngines',
+      managerFilePatterns: ['/(^|/)package\\.json$/'],
+      matchStrings: [
+        '"devEngines":\\s*\\{\\s*"packageManager":\\s*\\{\\s*"name":\\s*"(?<depName>[^"]+)",\\s*"version":\\s*"(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'npm',
+    },
+    {
+      customType: 'regex',
+      description: 'Node version in package.json devEngines',
+      managerFilePatterns: ['/(^|/)package\\.json$/'],
+      matchStrings: [
+        '"runtime":\\s*\\{\\s*"name":\\s*"node",\\s*"version":\\s*"(?<currentValue>[^"]+)"',
+      ],
+      depNameTemplate: 'node',
+      datasourceTemplate: 'node-version',
+    },
+  ],
+}
