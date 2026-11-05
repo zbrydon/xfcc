@@ -127,7 +127,7 @@ jobs:
       # devEngines to the command.
       - name: Publish
         working-directory: ${{ runner.temp }}/pack
-        run: pnpm publish "./xfcc-$VERSION.tgz" --access public --provenance
+        run: pnpm publish "./xfcc-parser-$VERSION.tgz" --access public --provenance
         env:
           VERSION: ${{ steps.version.outputs.version }}
 

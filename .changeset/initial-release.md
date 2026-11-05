@@ -1,5 +1,5 @@
 ---
-'xfcc': minor
+'xfcc-parser': minor
 ---
 
 Initial release
