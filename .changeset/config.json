@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@4.0.0/schema.json",
-  "changelog": ["@skuba-lib/changesets-changelog", { "repo": "zbrydon/xfcc-node" }],
+  "changelog": ["@skuba-lib/changesets-changelog", { "repo": "zbrydon/xfcc" }],
   "format": "oxfmt",
   "commit": false,
   "linked": [],
