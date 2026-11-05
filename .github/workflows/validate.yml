@@ -59,3 +59,16 @@ jobs:
 
       - name: Smoke test built package
         run: node scripts/smoke.mts
+
+  # The check to require on `main`, so a Node bump does not change its name.
+  # `always()`, because a skipped job counts as passing.
+  validated:
+    name: Validated
+    needs: validate
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check matrix result
+        run: test "$RESULT" = success
+        env:
+          RESULT: ${{ needs.validate.result }}
