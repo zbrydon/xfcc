@@ -90,7 +90,7 @@ jobs:
           path: pack/*.tgz
           if-no-files-found: error
 
-  # Publishes the tested tarball. No `pnpm install`: this job holds the id-token
+  # Stages the tested tarball. No `pnpm install`: this job holds the id-token
   # and runs no dependency code, only Node and pnpm themselves.
   publish:
     name: Publish
@@ -100,7 +100,7 @@ jobs:
     # trusted publisher to this workflow and environment.
     environment: release
     permissions:
-      contents: write # create the GitHub release and tag
+      contents: read
       id-token: write # npm trusted publishing and provenance
     steps:
       - name: Check out repo
@@ -123,16 +123,11 @@ jobs:
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
-      # Published from outside the checkout so pnpm does not apply this repo's
-      # devEngines to the command.
-      - name: Publish
+      # Staged from outside the checkout so pnpm does not apply this repo's
+      # devEngines to the command. The GitHub release is created by hand after
+      # approval on npm, because a `v*` tag cannot be removed if this is rejected.
+      - name: Stage
         working-directory: ${{ runner.temp }}/pack
-        run: pnpm publish "./xfcc-parser-$VERSION.tgz" --access public --provenance
+        run: pnpm stage publish "./xfcc-parser-$VERSION.tgz" --access public --provenance
         env:
-          VERSION: ${{ steps.version.outputs.version }}
-
-      - name: Create GitHub release
-        run: gh release create "v$VERSION" --target "$GITHUB_SHA" --title "v$VERSION" --notes "See [CHANGELOG.md](https://github.com/$GITHUB_REPOSITORY/blob/v$VERSION/CHANGELOG.md)."
-        env:
-          GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
