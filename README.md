@@ -7,7 +7,7 @@ It is built for authorization paths. Anything that deviates from the format reje
 ## Installation
 
 ```sh
-pnpm add xfcc
+pnpm add xfcc-parser
 ```
 
 Node.js >= 22.18.
@@ -15,7 +15,7 @@ Node.js >= 22.18.
 ## Usage
 
 ```ts
-import { parseDistinguishedName, parseXfcc, XfccError } from 'xfcc';
+import { parseDistinguishedName, parseXfcc, XfccError } from 'xfcc-parser';
 
 // `format` is required: match it to the Envoy listener. maxElements defaults
 // to 1; set it to the exact number of proxy hops, so a SAN cannot smuggle in an
@@ -100,7 +100,7 @@ const nearest = result.value.at(-1);
 Returns the SPIFFE ID of the mTLS peer that connected to the proxy closest to this service: the last element of the header. It takes the same arguments as `parseXfcc`, plus `options.requireSingleSan`. If more than one of your proxies appends an element, set `maxElements` to the exact hop count.
 
 ```ts
-import { getPeerSpiffeId } from 'xfcc';
+import { getPeerSpiffeId } from 'xfcc-parser';
 
 // Forward Cert from the nearest proxy so requireCertHash can be used.
 const peer = getPeerSpiffeId(request.headers['x-forwarded-client-cert'], {

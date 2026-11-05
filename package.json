@@ -1,5 +1,5 @@
 {
-  "name": "xfcc",
+  "name": "xfcc-parser",
   "version": "0.0.0",
   "description": "Strict, fail-closed parser for Envoy's x-forwarded-client-cert (XFCC) header",
   "keywords": [
