@@ -9,14 +9,14 @@
     "x-forwarded-client-cert",
     "xfcc"
   ],
-  "homepage": "https://github.com/zbrydon/xfcc#readme",
+  "homepage": "https://github.com/zbrydon/xfcc-parser#readme",
   "bugs": {
-    "url": "https://github.com/zbrydon/xfcc/issues"
+    "url": "https://github.com/zbrydon/xfcc-parser/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zbrydon/xfcc.git"
+    "url": "git+https://github.com/zbrydon/xfcc-parser.git"
   },
   "files": [
     "dist"
