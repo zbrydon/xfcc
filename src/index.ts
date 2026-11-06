@@ -113,16 +113,14 @@ const normalizeOptions = (
   if (typeof options !== 'object' || options === null || Array.isArray(options)) {
     return new XfccError('INVALID_OPTION', 'options must be an object');
   }
+  // Only own enumerable keys, the ones checked below: an inherited
+  // `Object.prototype.maxElements` or a hidden key must not count.
+  const own = { __proto__: null, ...options };
   // A misspelt key would otherwise silently drop a mitigation like `maxElements`.
-  if (!Object.keys(options).every((key) => OPTION_KEYS.has(key))) {
+  if (!Object.keys(own).every((key) => OPTION_KEYS.has(key))) {
     return new XfccError('INVALID_OPTION', 'options has an unknown key');
   }
-  // Only own keys: an inherited `Object.prototype.maxElements` must not count.
-  const own = <K extends keyof ParseOptions>(key: K): ParseOptions[K] | undefined =>
-    Object.hasOwn(options, key) ? options[key] : undefined;
-  const format = own('format');
-  const requireCertHash = own('requireCertHash');
-  const allowTextIssuer = own('allowTextIssuer');
+  const { format, requireCertHash, allowTextIssuer } = own;
   if (format === undefined) {
     return new XfccError('INVALID_OPTION', 'format is required');
   }
@@ -135,11 +133,11 @@ const normalizeOptions = (
   if (allowTextIssuer !== undefined && typeof allowTextIssuer !== 'boolean') {
     return invalidOption('allowTextIssuer');
   }
-  const maxLength = checkInteger('maxLength', own('maxLength'), MAX_LENGTH_LIMIT);
+  const maxLength = checkInteger('maxLength', own.maxLength, MAX_LENGTH_LIMIT);
   if (maxLength instanceof XfccError) {
     return maxLength;
   }
-  const maxElements = checkInteger('maxElements', own('maxElements'), MAX_ELEMENTS_LIMIT);
+  const maxElements = checkInteger('maxElements', own.maxElements, MAX_ELEMENTS_LIMIT);
   if (maxElements instanceof XfccError) {
     return maxElements;
   }

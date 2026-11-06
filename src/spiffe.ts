@@ -63,15 +63,7 @@ export interface SpiffeIdOptions {
 /** The options of `getPeerSpiffeId`: those of `parseXfcc`, plus `SpiffeIdOptions`. */
 export interface PeerSpiffeIdOptions extends ParseOptions, SpiffeIdOptions {}
 
-// Returns `requireSingleSan`, or an error message. Only an own key counts, so
-// an inherited `Object.prototype.requireSingleSan` does not.
-const readRequireSingleSan = (options: SpiffeIdOptions): boolean | string => {
-  const value = Object.hasOwn(options, 'requireSingleSan') ? options.requireSingleSan : undefined;
-  if (value !== undefined && typeof value !== 'boolean') {
-    return 'requireSingleSan is out of range';
-  }
-  return value ?? false;
-};
+const INVALID_REQUIRE_SINGLE_SAN = 'requireSingleSan is out of range';
 
 /**
  * Reads the SPIFFE ID of the client certificate in `element`.
@@ -91,12 +83,14 @@ export const spiffeIdOf = (element: XfccElement, options: SpiffeIdOptions = {}):
   if (typeof options !== 'object' || options === null || Array.isArray(options)) {
     throw new TypeError('options must be an object');
   }
-  if (!Object.keys(options).every((key) => key === 'requireSingleSan')) {
+  // Only own enumerable keys, as `parseXfcc` reads: an inherited
+  // `Object.prototype.requireSingleSan` or a hidden key must not count.
+  const { requireSingleSan = false, ...rest } = { __proto__: null, ...options };
+  if (Object.keys(rest).length > 0) {
     throw new TypeError('options has an unknown key');
   }
-  const requireSingleSan = readRequireSingleSan(options);
-  if (typeof requireSingleSan === 'string') {
-    throw new TypeError(requireSingleSan);
+  if (typeof requireSingleSan !== 'boolean') {
+    throw new TypeError(INVALID_REQUIRE_SINGLE_SAN);
   }
   return readSpiffeId(element, requireSingleSan);
 };
@@ -150,14 +144,12 @@ export const safeGetPeerSpiffeId = (
   // Anything that is not an object is passed through for `safeParseXfcc` to
   // reject.
   let parseOptions: ParseOptions = options;
-  let requireSingleSan: boolean | string = false;
+  let requireSingleSan: unknown = false;
   if (typeof options === 'object' && options !== null && !Array.isArray(options)) {
-    const { requireSingleSan: _, ...rest } = options;
-    parseOptions = rest;
-    requireSingleSan = readRequireSingleSan(options);
-    if (typeof requireSingleSan === 'string') {
-      return fail(new XfccError('INVALID_OPTION', requireSingleSan));
-    }
+    ({ requireSingleSan = false, ...parseOptions } = { __proto__: null, ...options });
+  }
+  if (typeof requireSingleSan !== 'boolean') {
+    return fail(new XfccError('INVALID_OPTION', INVALID_REQUIRE_SINGLE_SAN));
   }
   const parsed = safeParseXfcc(header, parseOptions);
   if (!parsed.ok) {

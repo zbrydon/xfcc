@@ -16,6 +16,7 @@ import {
   MAX_ELEMENTS_LIMIT,
   MAX_LENGTH_LIMIT,
   parseDistinguishedName,
+  getPeerSpiffeId,
   parseXfcc,
   safeGetPeerSpiffeId,
   safeParseXfcc,
@@ -174,6 +175,14 @@ describe('parseXfcc', () => {
         Reflect.deleteProperty(Object.prototype, key);
       }
     }
+  });
+
+  it('reads the same options in parseXfcc and getPeerSpiffeId', () => {
+    const options = { format: 'text' } as const;
+    Object.defineProperty(options, 'maxElements', { value: 2 });
+    const twoHops = `Hash=${HASH};URI=spiffe://td/a,Hash=${HASH};URI=spiffe://td/b`;
+    expect(codeOf(() => parseXfcc(twoHops, options))).toBe('TOO_MANY_ELEMENTS');
+    expect(codeOf(() => getPeerSpiffeId(twoHops, options))).toBe('TOO_MANY_ELEMENTS');
   });
 
   it('still returns errors when Error.stackTraceLimit is read-only', () => {
