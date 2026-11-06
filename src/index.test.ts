@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
 
 import { describe, expect, it } from 'vitest';
 
@@ -199,12 +200,29 @@ describe('parseXfcc', () => {
     });
   });
 
-  it('reads the same options in parseXfcc and getPeerSpiffeId', () => {
-    const options = { format: 'text' } as const;
-    Object.defineProperty(options, 'maxElements', { value: 2 });
-    const twoHops = `Hash=${HASH};URI=spiffe://td/a,Hash=${HASH};URI=spiffe://td/b`;
-    expect(codeOf(() => parseXfcc(twoHops, options))).toBe('TOO_MANY_ELEMENTS');
-    expect(codeOf(() => getPeerSpiffeId(twoHops, options))).toBe('TOO_MANY_ELEMENTS');
+  it('rejects a non-enumerable or symbol option key rather than ignoring it', () => {
+    const hidden = { format: 'text' } as const;
+    Object.defineProperty(hidden, 'requireCertHash', { value: true });
+    const symbol = { format: 'text', [Symbol('requireCertHash')]: true } as const;
+    for (const options of [hidden, symbol]) {
+      expect(codeOf(() => parseXfcc(`Hash=${HASH}`, options))).toBe('INVALID_OPTION');
+      expect(codeOf(() => getPeerSpiffeId(`Hash=${HASH}`, options))).toBe('INVALID_OPTION');
+    }
+  });
+
+  it('accepts a plain options object from another realm', () => {
+    const options: unknown = runInNewContext('({ format: "text" })');
+    // @ts-expect-error -- typed unknown, a plain object at runtime
+    expect(parseXfcc(`Hash=${HASH}`, options)[0]?.hash).toBe(HASH);
+    // @ts-expect-error -- typed unknown, a plain object at runtime
+    expect(safeGetPeerSpiffeId(`Hash=${HASH}`, options)).toMatchObject({
+      ok: false,
+      error: { code: 'NOT_ONE_URI' },
+    });
+    // A null-prototype parent that holds an option is not a realm's Object.prototype.
+    const parent = Object.defineProperty({ __proto__: null }, 'requireCertHash', { value: true });
+    const forged = { __proto__: parent, format: 'text' } as const;
+    expect(codeOf(() => parseXfcc(`Hash=${HASH}`, forged))).toBe('INVALID_OPTION');
   });
 
   it('still returns errors when Error.stackTraceLimit is read-only', () => {

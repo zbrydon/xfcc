@@ -2,6 +2,7 @@ import { parseDn, type DnAttribute } from './dn.ts';
 import { reject, XfccError } from './errors.ts';
 import { parseJson } from './json.ts';
 import { parseText } from './text.ts';
+import { PARSE_OPTION_KEYS, readOptions } from './validate.ts';
 
 export { XfccError, type XfccErrorCode } from './errors.ts';
 export type { DnAttribute } from './dn.ts';
@@ -90,14 +91,6 @@ const checkInteger = (
   return value;
 };
 
-const OPTION_KEYS: ReadonlySet<string> = new Set([
-  'maxLength',
-  'maxElements',
-  'format',
-  'requireCertHash',
-  'allowTextIssuer',
-]);
-
 interface NormalizedOptions {
   readonly maxLength: number;
   readonly maxElements: number;
@@ -110,22 +103,9 @@ interface NormalizedOptions {
 const normalizeOptions = (
   options: ParseOptions | null | undefined,
 ): NormalizedOptions | XfccError => {
-  // Only a plain or null-prototype object. Inherited keys are dropped below, so
-  // a class getter or parent object could otherwise silently turn off a check
-  // like `requireCertHash`. This also rejects arrays.
-  if (
-    typeof options !== 'object' ||
-    options === null ||
-    (Object.getPrototypeOf(options) ?? Object.prototype) !== Object.prototype
-  ) {
-    return new XfccError('INVALID_OPTION', 'options must be a plain object');
-  }
-  // Only own enumerable keys, the ones checked below: an inherited
-  // `Object.prototype.maxElements` or a hidden key must not count.
-  const own = { __proto__: null, ...options };
-  // A misspelt key would otherwise silently drop a mitigation like `maxElements`.
-  if (!Object.keys(own).every((key) => OPTION_KEYS.has(key))) {
-    return new XfccError('INVALID_OPTION', 'options has an unknown key');
+  const own = readOptions(options, PARSE_OPTION_KEYS);
+  if (typeof own === 'string') {
+    return new XfccError('INVALID_OPTION', own);
   }
   const { format, requireCertHash, allowTextIssuer } = own;
   if (format === undefined) {

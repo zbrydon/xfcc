@@ -243,6 +243,20 @@ describe('spiffeIdOf', () => {
     expect(() => spiffeIdOf(element(API), options)).toThrow(TypeError);
   });
 
+  it('throws TypeError for a requireSingleSan it would otherwise ignore', () => {
+    class Getter {
+      get requireSingleSan() {
+        return true;
+      }
+    }
+    const hidden = {};
+    Object.defineProperty(hidden, 'requireSingleSan', { value: true });
+    const withDns = { ...element(API), dns: ['admin.internal'] };
+    for (const options of [{ __proto__: { requireSingleSan: true } }, new Getter(), hidden]) {
+      expect(() => spiffeIdOf(withDns, options)).toThrow(TypeError);
+    }
+  });
+
   it('accepts a 2048 byte ID', () => {
     const id = `spiffe://td/${'a'.repeat(2048 - 'spiffe://td/'.length)}`;
     expect(spiffeIdOf(element(id)).id).toBe(id);

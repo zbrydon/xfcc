@@ -1,6 +1,7 @@
-import { StacklessError } from './errors.ts';
+import { StacklessError, XfccError } from './errors.ts';
+import { PARSE_OPTION_KEYS, readOptions } from './validate.ts';
 
-import { safeParseXfcc, XfccError, type ParseOptions, type XfccElement } from './index.ts';
+import { safeParseXfcc, type ParseOptions, type XfccElement } from './index.ts';
 
 /** Maximum length of a SPIFFE ID in bytes, per the SPIFFE-ID standard. */
 const MAX_SPIFFE_ID_LENGTH = 2048;
@@ -61,6 +62,8 @@ export interface SpiffeIdOptions {
 export interface PeerSpiffeIdOptions extends ParseOptions, SpiffeIdOptions {}
 
 const INVALID_REQUIRE_SINGLE_SAN = 'requireSingleSan is out of range';
+const SPIFFE_ID_KEYS: ReadonlySet<string> = new Set(['requireSingleSan']);
+const PEER_KEYS: ReadonlySet<string> = new Set([...PARSE_OPTION_KEYS, 'requireSingleSan']);
 
 /**
  * Reads the SPIFFE ID of the client certificate in `element`.
@@ -77,15 +80,11 @@ const INVALID_REQUIRE_SINGLE_SAN = 'requireSingleSan is out of range';
  * @throws {TypeError} if `options` is invalid.
  */
 export const spiffeIdOf = (element: XfccElement, options: SpiffeIdOptions = {}): SpiffeId => {
-  if (typeof options !== 'object' || options === null || Array.isArray(options)) {
-    throw new TypeError('options must be an object');
+  const own = readOptions(options, SPIFFE_ID_KEYS);
+  if (typeof own === 'string') {
+    throw new TypeError(own);
   }
-  // Only own enumerable keys, as `parseXfcc` reads: an inherited
-  // `Object.prototype.requireSingleSan` or a hidden key must not count.
-  const { requireSingleSan = false, ...rest } = { __proto__: null, ...options };
-  if (Object.keys(rest).length > 0) {
-    throw new TypeError('options has an unknown key');
-  }
+  const { requireSingleSan = false } = own;
   if (typeof requireSingleSan !== 'boolean') {
     throw new TypeError(INVALID_REQUIRE_SINGLE_SAN);
   }
@@ -138,17 +137,11 @@ export const safeGetPeerSpiffeId = (
   header: string | readonly string[] | undefined,
   options: PeerSpiffeIdOptions,
 ): SpiffeIdResult => {
-  // Anything that is not a plain or null-prototype object is passed through
-  // for `safeParseXfcc` to reject, before the spread drops inherited keys.
-  let parseOptions: ParseOptions = options;
-  let requireSingleSan: unknown = false;
-  if (
-    typeof options === 'object' &&
-    options !== null &&
-    (Object.getPrototypeOf(options) ?? Object.prototype) === Object.prototype
-  ) {
-    ({ requireSingleSan = false, ...parseOptions } = { __proto__: null, ...options });
+  const own = readOptions(options, PEER_KEYS);
+  if (typeof own === 'string') {
+    return fail(new XfccError('INVALID_OPTION', own));
   }
+  const { requireSingleSan = false, ...parseOptions } = own;
   if (typeof requireSingleSan !== 'boolean') {
     return fail(new XfccError('INVALID_OPTION', INVALID_REQUIRE_SINGLE_SAN));
   }

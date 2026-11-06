@@ -192,3 +192,46 @@ export const validUri = (value: string): boolean => {
   const end = value.charCodeAt(queryEnd) === 35 ? skip(value, queryEnd + 1, QUERY_TABLE) : queryEnd;
   return end === value.length && (hasAuthority || pathEnd > hierPart || hasQuery);
 };
+
+/** The keys of `ParseOptions`. */
+export const PARSE_OPTION_KEYS: ReadonlySet<string> = new Set([
+  'maxLength',
+  'maxElements',
+  'format',
+  'requireCertHash',
+  'allowTextIssuer',
+]);
+
+/**
+ * Copies the keys of `options` into a null-prototype object, or returns why it
+ * cannot without silently dropping an option, which could turn off a check
+ * like `requireCertHash`. `options` must be a plain object, from any realm, or
+ * have a `null` prototype: a class getter or parent object would be dropped.
+ * A key inherited from a polluted `Object.prototype` is ignored. Every own key
+ * must be one of `keys` and enumerable.
+ */
+export const readOptions = <T extends object>(
+  options: T | null | undefined,
+  keys: ReadonlySet<string>,
+): T | string => {
+  if (typeof options !== 'object' || options === null) {
+    return 'options must be a plain object';
+  }
+  const proto = Reflect.getPrototypeOf(options);
+  // Another realm's `Object.prototype` has a null prototype too. One that
+  // holds an option key is rejected, polluted or not.
+  const plain =
+    proto === null ||
+    proto === Object.prototype ||
+    (Reflect.getPrototypeOf(proto) === null && ![...keys].some((key) => Object.hasOwn(proto, key)));
+  if (!plain) {
+    return 'options must be a plain object';
+  }
+  // `Reflect.ownKeys` also lists symbols and non-enumerable keys, which the
+  // spread below would drop.
+  const own = Object.keys(options);
+  if (Reflect.ownKeys(options).length !== own.length || !own.every((key) => keys.has(key))) {
+    return 'options has an unknown or non-enumerable key';
+  }
+  return { __proto__: null, ...options };
+};
