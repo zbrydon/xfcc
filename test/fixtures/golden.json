@@ -4607,7 +4607,7 @@
    "input": "CN=\ud800",
    "expected": {
     "code": "INVALID_DN",
-    "offset": 0
+    "offset": 3
    }
   },
   {

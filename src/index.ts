@@ -268,10 +268,10 @@ export const parseDistinguishedName = (dn: string): readonly Rdn[] => {
   if (dn.length > MAX_LENGTH_LIMIT || Buffer.byteLength(dn) > MAX_LENGTH_LIMIT) {
     throw reject('TOO_LONG', MAX_LENGTH_LIMIT);
   }
-  // Encoding it would silently turn a lone surrogate into U+FFFD. Such a string
-  // has no UTF-8 encoding at all, so the offset is 0.
+  // Encoding it would silently turn a lone surrogate into U+FFFD. With the `u`
+  // flag `\p{Cs}` matches only a lone one, and everything before it encodes.
   if (!dn.isWellFormed()) {
-    throw reject('INVALID_DN', 0);
+    throw reject('INVALID_DN', Buffer.byteLength(dn.slice(0, dn.search(/\p{Cs}/u))));
   }
   return Object.freeze(
     parseDn(dn).map((rdn) => Object.freeze(rdn.map((attr) => Object.freeze(attr)))),

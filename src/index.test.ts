@@ -437,10 +437,15 @@ describe('parseDistinguishedName', () => {
     expect(() => parseDistinguishedName(undefined)).toThrow(TypeError);
   });
 
-  it.each(['CN=\ud800', 'CN=\udc00', 'CN=a,O=\ud83d'])('rejects the lone surrogate in %j', (dn) => {
+  it.each([
+    ['CN=\ud800', 3],
+    ['CN=\udc00', 3],
+    ['CN=a,O=\ud83d', 7],
+    ['CN=😀\udc00', 7],
+  ])('rejects the lone surrogate in %j at byte %i', (dn, offset) => {
     const error = errorOf(() => parseDistinguishedName(dn));
     expect(error.code).toBe('INVALID_DN');
-    expect(error.offset).toBe(0);
+    expect(error.offset).toBe(offset);
   });
 
   it('accepts a surrogate pair', () => {
