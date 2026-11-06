@@ -32,24 +32,31 @@ const MESSAGES = {
 // `INVALID_OPTION` has no fixed message: each caller names the option.
 export type XfccErrorCode = keyof typeof MESSAGES | 'INVALID_OPTION';
 
+/** An error with no stack trace. */
+export class StacklessError extends Error {
+  constructor(message: string) {
+    // Capturing a stack trace is most of the cost of rejecting a header, and
+    // the stack of an error about untrusted input says nothing useful.
+    // `Reflect.set` fails quietly where `Error` is frozen (SES lockdown, say).
+    const { stackTraceLimit } = Error;
+    Reflect.set(Error, 'stackTraceLimit', 0);
+    super(message);
+    Reflect.set(Error, 'stackTraceLimit', stackTraceLimit);
+  }
+}
+
 /**
  * Thrown for any header or distinguished name that does not strictly match
  * the format. The message never contains input, so it is safe to log.
  */
-export class XfccError extends Error {
+export class XfccError extends StacklessError {
   override readonly name = 'XfccError';
   readonly code: XfccErrorCode;
   /** Byte offset into the input where the problem was found. Unset for `INVALID_OPTION`. */
   readonly offset: number | undefined;
 
   constructor(code: XfccErrorCode, message: string, offset?: number) {
-    // Capturing a stack trace is most of the cost of rejecting a header, and
-    // the stack of an error about untrusted input says nothing useful.
-    // `Reflect.set` fails quietly where `Error` is frozen (SES lockdown, say).
-    const { stackTraceLimit } = Error;
-    Reflect.set(Error, 'stackTraceLimit', 0);
     super(offset === undefined ? `${code}: ${message}` : `${code}: ${message} (at byte ${offset})`);
-    Reflect.set(Error, 'stackTraceLimit', stackTraceLimit);
     this.code = code;
     this.offset = offset;
   }

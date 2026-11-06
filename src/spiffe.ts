@@ -1,3 +1,5 @@
+import { StacklessError } from './errors.ts';
+
 import { safeParseXfcc, XfccError, type ParseOptions, type XfccElement } from './index.ts';
 
 /** Maximum length of a SPIFFE ID in bytes, per the SPIFFE-ID standard. */
@@ -14,17 +16,12 @@ export type SpiffeErrorCode =
  * Thrown when the nearest element does not carry exactly one valid SPIFFE ID.
  * The message never contains input, so it is safe to log.
  */
-export class SpiffeError extends Error {
+export class SpiffeError extends StacklessError {
   override readonly name = 'SpiffeError';
   readonly code: SpiffeErrorCode;
 
   constructor(code: SpiffeErrorCode, message: string) {
-    // The stack of an error about untrusted input says nothing useful.
-    // `Reflect.set` fails quietly where `Error` is frozen (SES lockdown, say).
-    const { stackTraceLimit } = Error;
-    Reflect.set(Error, 'stackTraceLimit', 0);
     super(`${code}: ${message}`);
-    Reflect.set(Error, 'stackTraceLimit', stackTraceLimit);
     this.code = code;
   }
 }
