@@ -215,7 +215,7 @@ This builds the package and benchmarks `dist/`, because Vitest's module runner a
 1. Add a changeset with `pnpm changeset`. Merging to `main` opens a "Version Packages" PR.
 2. Merging that PR builds and tests the package, then stages it on npm after approval in the `release` environment.
 3. Review the staged version with `npm stage view <id>`, then approve it with 2FA using `npm stage approve <id>` or on npmjs.com.
-4. Create the GitHub release and tag with `scripts/release.sh`, which uses the version's section of `CHANGELOG.md` as the notes.
+4. Create the GitHub release and tag with `scripts/release.sh [version]`. It tags the commit named in the npm provenance and uses the version's section of `CHANGELOG.md` as the notes.
 
 ## License
 

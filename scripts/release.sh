@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
-# Creates the GitHub release and tag for the version on origin/main, once it is
-# approved on npm. A `v*` tag cannot be removed, so any failure stops before `gh`.
+# Creates the GitHub release and tag for a version once it is approved on npm.
+# Usage: scripts/release.sh [version], defaulting to the version on origin/main.
+# A `v*` tag cannot be removed, so any failure stops before `gh`.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
 git fetch --quiet origin main
-version="$(git show origin/main:package.json | node -p 'JSON.parse(require("fs").readFileSync(0)).version')"
+version="${1:-$(git show origin/main:package.json | node -p 'JSON.parse(require("fs").readFileSync(0)).version')}"
 
-if git ls-remote --exit-code origin "refs/tags/v$version" > /dev/null; then
-  echo "v$version already exists" >&2
+# Exit 2 means no such tag. 0 means it exists, anything else is a failed check.
+status=0
+git ls-remote --exit-code origin "refs/tags/v$version" > /dev/null || status=$?
+if [ "$status" -ne 2 ]; then
+  echo "v$version already exists, or the check failed (exit $status)" >&2
   exit 1
 fi
 
