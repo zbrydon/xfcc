@@ -53,7 +53,7 @@ jobs:
       # Not `pnpm lint`, which builds again.
       - name: Lint
         if: matrix.node == '26.12.1'
-        run: pnpm exec oxlint && pnpm exec oxfmt --check
+        run: pnpm lint:check
 
       - name: Test
         run: pnpm test:ci
