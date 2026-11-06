@@ -215,17 +215,7 @@ This builds the package and benchmarks `dist/`, because Vitest's module runner a
 1. Add a changeset with `pnpm changeset`. Merging to `main` opens a "Version Packages" PR.
 2. Merging that PR builds and tests the package, then stages it on npm after approval in the `release` environment.
 3. Review the staged version with `npm stage view <id>`, then approve it with 2FA using `npm stage approve <id>` or on npmjs.com.
-4. Create the GitHub release and tag with `gh release create v<version> --target <merge commit> --title v<version> --notes "See [CHANGELOG.md](https://github.com/zbrydon/xfcc-parser/blob/v<version>/CHANGELOG.md)."`.
-
-One-time setup:
-
-- **npm:** configure a trusted publisher bound to `release.yml` and the `release` environment, allowing only `npm stage publish`. Then set publishing access to "Require two-factor authentication and disallow tokens".
-- **GitHub:**
-  - Allow GitHub Actions to create pull requests.
-  - Require SHA-pinned actions.
-  - Protect `main` with required checks, signed commits and no force-push.
-  - Protect `v*` tags.
-  - Add required reviewers to the `release` environment.
+4. Create the GitHub release and tag with `scripts/release.sh`, which uses the version's section of `CHANGELOG.md` as the notes.
 
 ## License
 
