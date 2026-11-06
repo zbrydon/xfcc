@@ -279,8 +279,8 @@ class Parser {
 const LIST_ORDER = [KEY.BY, KEY.CHAIN, KEY.URI, KEY.DNS] as const;
 const SINGLE_ORDER = [KEY.HASH, KEY.CERT, KEY.SUBJECT, KEY.ISSUER] as const;
 
-const toElement = (raw: RawElement, requireCertHash: boolean): XfccElement => {
-  const builder = new ElementBuilder();
+const toElement = (raw: RawElement, options: ElementOptions): XfccElement => {
+  const builder = new ElementBuilder('json', options);
   for (const key of LIST_ORDER) {
     const list = raw.lists.get(key);
     if (list?.values.length === 0) {
@@ -296,16 +296,16 @@ const toElement = (raw: RawElement, requireCertHash: boolean): XfccElement => {
       if ((key === KEY.BY || key === KEY.URI) && text.includes('Hash=')) {
         throw reject('INVALID_URI', offset);
       }
-      builder.set(key, text, false, offset);
+      builder.set(key, text, offset);
     }
   }
   for (const key of SINGLE_ORDER) {
     const value = raw.singles.get(key);
     if (value !== undefined) {
-      builder.set(key, value.text, false, value.offset);
+      builder.set(key, value.text, value.offset);
     }
   }
-  return builder.finish(false, requireCertHash, true, raw.offset);
+  return builder.finish(raw.offset);
 };
 
 export const parseJson = (input: string, options: ElementOptions): XfccElement[] => {
@@ -313,5 +313,5 @@ export const parseJson = (input: string, options: ElementOptions): XfccElement[]
   if (raw.length === 0) {
     throw reject('EMPTY', 0);
   }
-  return raw.map((element) => toElement(element, options.requireCertHash));
+  return raw.map((element) => toElement(element, options));
 };

@@ -101,7 +101,7 @@ class Parser {
 
   #element(): XfccElement {
     const start = this.#pos;
-    const builder = new ElementBuilder();
+    const builder = new ElementBuilder('text', this.#options);
     let lastKey = -1;
     for (;;) {
       lastKey = this.#pair(builder, lastKey);
@@ -114,13 +114,7 @@ class Parser {
         throw reject('EMPTY_PAIR', this.#pos);
       }
     }
-    // A URI SAN `a;Issuer="..."` is indistinguishable from a real Issuer.
-    return builder.finish(
-      true,
-      this.#options.requireCertHash,
-      this.#options.allowTextIssuer,
-      start,
-    );
+    return builder.finish(start);
   }
 
   #pair(builder: ElementBuilder, lastKey: number): Key {
@@ -158,7 +152,7 @@ class Parser {
     if ((key === KEY.CERT || key === KEY.CHAIN) && value.includes('\\')) {
       throw reject('INVALID_ESCAPE', valueStart);
     }
-    builder.set(key, value, true, valueStart);
+    builder.set(key, value, valueStart);
     return key;
   }
 

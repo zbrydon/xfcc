@@ -62,6 +62,14 @@ export class ElementBuilder {
   #emptyUri = false;
   readonly #dns: string[] = [];
   #issuer: string | null = null;
+  readonly #text: boolean;
+  readonly #options: ElementOptions;
+
+  /** In the `text` format every element must have a `Hash`. */
+  constructor(format: 'text' | 'json', options: ElementOptions) {
+    this.#text = format === 'text';
+    this.#options = options;
+  }
 
   /**
    * Validates and stores one value. In the `text` format `Cert` / `Chain` are
@@ -70,8 +78,11 @@ export class ElementBuilder {
    * format's `Subject` / `Issuer`, which Envoy emits as `""` when absent, and
    * its lone `URI=`, emitted when there are no URI SANs.
    */
-  set(key: Key, value: string, text: boolean, offset: number): void {
-    if (value === '' && !(text && (key === KEY.SUBJECT || key === KEY.ISSUER || key === KEY.URI))) {
+  set(key: Key, value: string, offset: number): void {
+    if (
+      value === '' &&
+      !(this.#text && (key === KEY.SUBJECT || key === KEY.ISSUER || key === KEY.URI))
+    ) {
       throw reject('EMPTY_VALUE', offset);
     }
     switch (key) {
@@ -128,7 +139,7 @@ export class ElementBuilder {
         if (this.#cert !== null) {
           throw reject('DUPLICATE_KEY', offset);
         }
-        const block = parseCertificate(text ? decode(value, offset) : value);
+        const block = parseCertificate(this.#text ? decode(value, offset) : value);
         if (block === undefined) {
           throw reject('INVALID_PEM', offset);
         }
@@ -137,7 +148,7 @@ export class ElementBuilder {
         break;
       }
       case KEY.CHAIN:
-        if (text) {
+        if (this.#text) {
           // A valid `Chain` is never an empty list, so a non-empty chain means
           // `Chain` was already seen.
           if (this.#presentedChain.length > 0) {
@@ -159,17 +170,12 @@ export class ElementBuilder {
     }
   }
 
-  /** The frozen element, once `requireHash` and `requireCertHash` hold. */
-  finish(
-    requireHash: boolean,
-    requireCertHash: boolean,
-    keepIssuer: boolean,
-    offset: number,
-  ): XfccElement {
-    if (requireHash && this.#hash === null) {
+  /** The frozen element, once the format's and `requireCertHash`'s checks hold. */
+  finish(offset: number): XfccElement {
+    if (this.#text && this.#hash === null) {
       throw reject('MISSING_HASH', offset);
     }
-    if (requireCertHash) {
+    if (this.#options.requireCertHash) {
       if (this.#certDer === null || this.#hash === null) {
         throw reject('MISSING_CERT_OR_HASH', offset);
       }
@@ -185,7 +191,9 @@ export class ElementBuilder {
       subject: this.#subject,
       uri: Object.freeze(this.#uri),
       dns: Object.freeze(this.#dns),
-      issuer: keepIssuer ? this.#issuer : null,
+      // In the text format a URI SAN `a;Issuer="..."` is indistinguishable
+      // from a real Issuer.
+      issuer: !this.#text || this.#options.allowTextIssuer ? this.#issuer : null,
     });
   }
 }
