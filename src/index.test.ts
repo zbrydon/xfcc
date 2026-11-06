@@ -17,6 +17,7 @@ import {
   MAX_LENGTH_LIMIT,
   parseDistinguishedName,
   parseXfcc,
+  safeGetPeerSpiffeId,
   safeParseXfcc,
   XfccError,
   type XfccErrorCode,
@@ -154,6 +155,43 @@ describe('parseXfcc', () => {
       expect(codeOf(() => parseXfcc(`Hash=${HASH}`, options))).toBe('INVALID_OPTION');
     },
   );
+
+  it('ignores options inherited from Object.prototype', () => {
+    const inherited = { format: 'text', maxElements: 2, allowTextIssuer: true };
+    Object.assign(Object.prototype, inherited);
+    try {
+      // @ts-expect-error -- deliberately invalid at runtime
+      expect(codeOf(() => parseXfcc(`Hash=${HASH}`, {}))).toBe('INVALID_OPTION');
+      const twoHops = `Hash=${HASH};URI=spiffe://td/a,Hash=${HASH};URI=spiffe://td/b`;
+      expect(codeOf(() => parseXfcc(twoHops, { format: 'text' }))).toBe('TOO_MANY_ELEMENTS');
+      expect(safeGetPeerSpiffeId(twoHops, { format: 'text' })).toMatchObject({
+        ok: false,
+        error: { code: 'TOO_MANY_ELEMENTS' },
+      });
+      expect(parseXfcc(`Hash=${HASH};Issuer="CN=CA"`, { format: 'text' })[0]?.issuer).toBeNull();
+    } finally {
+      for (const key of Object.keys(inherited)) {
+        Reflect.deleteProperty(Object.prototype, key);
+      }
+    }
+  });
+
+  it('still returns errors when Error.stackTraceLimit is read-only', () => {
+    const { stackTraceLimit } = Error;
+    Object.defineProperty(Error, 'stackTraceLimit', { writable: false });
+    try {
+      expect(safeParseXfcc(' ', { format: 'text' })).toMatchObject({
+        ok: false,
+        error: { code: 'EMPTY' },
+      });
+      expect(safeGetPeerSpiffeId(`Hash=${HASH}`, { format: 'text' })).toMatchObject({
+        ok: false,
+        error: { code: 'NOT_ONE_URI' },
+      });
+    } finally {
+      Object.defineProperty(Error, 'stackTraceLimit', { writable: true, value: stackTraceLimit });
+    }
+  });
 
   it('joins repeated header lines with commas', () => {
     const elements = parseXfcc([`Hash=${HASH};URI=spiffe://a`, `Hash=${HASH};URI=spiffe://b`], {

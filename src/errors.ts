@@ -44,10 +44,11 @@ export class XfccError extends Error {
   constructor(code: XfccErrorCode, message: string, offset?: number) {
     // Capturing a stack trace is most of the cost of rejecting a header, and
     // the stack of an error about untrusted input says nothing useful.
+    // `Reflect.set` fails quietly where `Error` is frozen (SES lockdown, say).
     const { stackTraceLimit } = Error;
-    Error.stackTraceLimit = 0;
+    Reflect.set(Error, 'stackTraceLimit', 0);
     super(offset === undefined ? `${code}: ${message}` : `${code}: ${message} (at byte ${offset})`);
-    Error.stackTraceLimit = stackTraceLimit;
+    Reflect.set(Error, 'stackTraceLimit', stackTraceLimit);
     this.code = code;
     this.offset = offset;
   }

@@ -142,6 +142,17 @@ describe('getPeerSpiffeId', () => {
     expect(getPeerSpiffeId(header, TEXT).id).toBe('spiffe://td/x');
   });
 
+  it('ignores requireSingleSan inherited from Object.prototype', () => {
+    Object.assign(Object.prototype, { requireSingleSan: 'yes' });
+    try {
+      const header = `Hash=${HASH};URI=spiffe://td/x;DNS=admin.internal`;
+      expect(getPeerSpiffeId(header, TEXT).id).toBe('spiffe://td/x');
+      expect(spiffeIdOf({ ...element(API), dns: ['admin.internal'] }).id).toBe(API);
+    } finally {
+      Reflect.deleteProperty(Object.prototype, 'requireSingleSan');
+    }
+  });
+
   it('rejects any DNS SAN when requireSingleSan is set', () => {
     const header = `Hash=${HASH};URI=spiffe://td/x;DNS=admin.internal`;
     expect(codeOf(() => getPeerSpiffeId(header, { format: 'text', requireSingleSan: true }))).toBe(
