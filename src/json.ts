@@ -162,7 +162,9 @@ class Parser {
     const keyStart = this.#pos;
     const name = this.#string();
     // Envoy never escapes a key, so `"h\u0061sh"` is not `hash`.
-    const escaped = this.#input.slice(keyStart, this.#pos).includes('\\');
+    // Every escape decodes shorter than it is written, so a key shorter than
+    // its source (less the quotes) had one.
+    const escaped = name.length !== this.#pos - keyStart - 2;
     const listKey = escaped ? undefined : LIST_KEYS.get(name);
     const singleKey = escaped ? undefined : SINGLE_KEYS.get(name);
     if (listKey !== undefined && !lists.has(listKey)) {
