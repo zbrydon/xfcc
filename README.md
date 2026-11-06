@@ -130,9 +130,9 @@ Parses an RFC 4514 distinguished name into RDNs, in string order. That is the mo
 
 ### Errors
 
-`parseXfcc` and `parseDistinguishedName` throw `XfccError`, which has a stable `code` and the byte `offset` where the problem was found. For `INVALID_JSON`, that is the first offending byte. A surplus JSON element reports `TOO_MANY_ELEMENTS` without being validated. `safeParseXfcc` returns the same error. Messages never include the input, so they are safe to log. An `XfccError` has no stack trace: capturing one dominates the cost of rejecting a header, and it says nothing about untrusted input. Codes:
+`parseXfcc` and `parseDistinguishedName` throw `XfccError`, which has a stable `code` and the byte `offset` where the problem was found (`INVALID_OPTION` has none). For `INVALID_JSON`, that is the first offending byte; for an invalid JSON value, the value's opening quote or bracket; for an element-level error such as `MISSING_CERT_OR_HASH`, the start of the element. A surplus JSON element reports `TOO_MANY_ELEMENTS` without being validated. `safeParseXfcc` returns the same error. Messages never include the input, so they are safe to log. An `XfccError` has no stack trace: capturing one dominates the cost of rejecting a header, and it says nothing about untrusted input. Codes:
 
-`INVALID_OPTION`, `EMPTY`, `TOO_LONG`, `TOO_MANY_ELEMENTS`, `INVALID_CHAR`, `EMPTY_ELEMENT`, `EMPTY_PAIR`, `MISSING_EQUALS`, `UNKNOWN_KEY`, `DUPLICATE_KEY`, `EMPTY_VALUE`, `UNTERMINATED_QUOTE`, `UNEXPECTED_AFTER_QUOTE`, `QUOTE_REQUIRED`, `INVALID_ESCAPE`, `INVALID_HASH`, `INVALID_URI`, `INVALID_DNS`, `INVALID_PERCENT_ENCODING`, `INVALID_PEM`, `INVALID_DN`, `KEY_ORDER`, `MISSING_HASH`, `MISSING_CERT_OR_HASH`, `HASH_MISMATCH`, `INVALID_JSON`.
+`INVALID_OPTION`, `EMPTY`, `TOO_LONG`, `TOO_MANY_ELEMENTS`, `INVALID_CHAR`, `EMPTY_ELEMENT`, `EMPTY_PAIR`, `MISSING_EQUALS`, `UNKNOWN_KEY`, `DUPLICATE_KEY`, `EMPTY_VALUE`, `UNTERMINATED_QUOTE`, `UNEXPECTED_AFTER_VALUE`, `INVALID_QUOTING`, `INVALID_ESCAPE`, `INVALID_HASH`, `INVALID_URI`, `INVALID_DNS`, `INVALID_PERCENT_ENCODING`, `INVALID_PEM`, `INVALID_DN`, `KEY_ORDER`, `MISSING_HASH`, `MISSING_CERT_OR_HASH`, `HASH_MISMATCH`, `INVALID_JSON`.
 
 A wrong argument type throws a `TypeError`.
 
@@ -157,7 +157,7 @@ What the parser enforces, in addition to the format grammar:
 - **Characters:** only visible ASCII, SP and HTAB are accepted. Control characters, `obs-text` and non-ASCII are rejected. `Subject` and `Issuer` also reject a raw tab, and in JSON any control or non-ASCII character (Envoy JSON-escapes control characters, and escapes every non-ASCII byte in a DN as `\XX`), so the `subject` and `issuer` strings cannot reach logs unescaped. Values decoded by `parseDistinguishedName` can.
 - **Value validation:** URIs must be RFC 3986 URIs with the non-empty scheme-specific-part RFC 5280 requires, so `urn:` is rejected. In the JSON format, a `by` or `uri` value containing `Hash=` is rejected with `INVALID_URI`. DNS names must be LDH hostnames ([RFC 1034][rfc1034], [RFC 1123][rfc1123], [RFC 5280][rfc5280]) whose last label is not all-numeric, so `1.2.3.4` is rejected. Hashes must be 64 lowercase hex characters. `Cert`/`Chain` use Envoy's percent-encoding (`+` is never treated as a space), followed by RFC 7468 PEM, canonical base64 and a DER framing check. The body must follow the strict grammar (64-character lines, then one shorter line), but trailing whitespace after the `BEGIN`/`END` lines and a missing final line break are accepted, as RFC 7468 parsers should.
 - **DN escapes:** RFC 4514 escapes inside `Subject`/`Issuer` are kept exactly as sent, so `CN=a\,O=Admin` can never be read as two RDNs.
-- **JSON:** each element must be an object. Unknown keys, duplicate keys, lone surrogates, `null`, empty strings and empty arrays are all rejected.
+- **JSON:** each element must be a non-empty object. Unknown, duplicate and escaped keys (`"h\u0061sh"`), lone surrogates, `null`, empty strings and empty arrays are all rejected.
 
 Deliberate deviations and limits:
 

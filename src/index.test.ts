@@ -221,7 +221,7 @@ describe('parseXfcc', () => {
     [`Hash=${HASH};URI=http://a,,URI=http://b`, 'EMPTY_ELEMENT'],
     [`Hash=${HASH};DNS=a.com;URI=spiffe://admin`, 'KEY_ORDER'],
     [`Hash=${HASH};URI=spiffe://a,URI=spiffe://admin`, 'MISSING_HASH'],
-    ['Subject=CN=a', 'QUOTE_REQUIRED'],
+    ['Subject=CN=a', 'INVALID_QUOTING'],
     ['Subject="CN=a', 'UNTERMINATED_QUOTE'],
     ['Hash=abc', 'INVALID_HASH'],
     [`Hash=${HASH};Hash=${HASH}`, 'DUPLICATE_KEY'],
@@ -229,8 +229,8 @@ describe('parseXfcc', () => {
     ['URI=http://aé', 'INVALID_CHAR'],
     ['URI=http://a\n', 'INVALID_CHAR'],
     ['URI=http://\ud800', 'INVALID_CHAR'],
-    [`Hash=${HASH};Cert=abc`, 'QUOTE_REQUIRED'],
-    [`Hash=${HASH};URI="spiffe://a"`, 'INVALID_ESCAPE'],
+    [`Hash=${HASH};Cert=abc`, 'INVALID_QUOTING'],
+    [`Hash=${HASH};URI="spiffe://a"`, 'INVALID_QUOTING'],
     // A text header made to look like JSON is still parsed as text.
     ['[{"uri":["a:"]}]', 'MISSING_EQUALS'],
   ] as const)('rejects %j with %s', (header, code) => {
@@ -254,11 +254,19 @@ describe('parseXfcc', () => {
     expect(error.message).not.toContain('secret');
   });
 
-  it('omits the offset when it is unknown', () => {
-    const error = errorOf(() => parseXfcc('[{"uri":["relative"]}]', { format: 'json' }));
-    expect(error.code).toBe('INVALID_URI');
-    expect(error.offset).toBeUndefined();
-    expect(error.message).toBe('INVALID_URI: value is not an RFC 3986 URI');
+  it.each([
+    ['[{"uri":["a:b", "relative"]}]', 'INVALID_URI', 16],
+    ['[{"uri":["a:Hash=x"]}]', 'INVALID_URI', 9],
+    ['[{"hash":"x"}]', 'INVALID_HASH', 9],
+    ['[{"subject":""}]', 'EMPTY_VALUE', 12],
+    ['[{"dns": [ ]}]', 'EMPTY_VALUE', 9],
+    ['[ ]', 'EMPTY', 0],
+    ['[ {"by":["a:b"]}]', 'MISSING_CERT_OR_HASH', 2],
+  ])('reports the offset of JSON error %j', (header, expected, offset) => {
+    const error = errorOf(() => parseXfcc(header, { format: 'json', requireCertHash: true }));
+    expect(error.code).toBe(expected);
+    expect(error.offset).toBe(offset);
+    expect(error.message).toContain(`(at byte ${offset})`);
   });
 
   it('rejects oversized headers', () => {
@@ -423,7 +431,7 @@ describe('parseDistinguishedName', () => {
   it.each(['CN=\ud800', 'CN=\udc00', 'CN=a,O=\ud83d'])('rejects the lone surrogate in %j', (dn) => {
     const error = errorOf(() => parseDistinguishedName(dn));
     expect(error.code).toBe('INVALID_DN');
-    expect(error.offset).toBeUndefined();
+    expect(error.offset).toBe(0);
   });
 
   it('accepts a surrogate pair', () => {

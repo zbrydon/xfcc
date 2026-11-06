@@ -103,11 +103,8 @@ class Parser {
     const start = this.#pos;
     const builder = new ElementBuilder();
     let lastKey = -1;
-    let emptyUri = false;
     for (;;) {
-      const pair = this.#pair(builder, lastKey, emptyUri);
-      lastKey = pair.key;
-      emptyUri = pair.emptyUri;
+      lastKey = this.#pair(builder, lastKey);
       if (this.#peek() !== SEMICOLON) {
         break;
       }
@@ -117,18 +114,16 @@ class Parser {
         throw reject('EMPTY_PAIR', this.#pos);
       }
     }
-    if (builder.hash === null) {
-      throw reject('MISSING_HASH', start);
-    }
     // A URI SAN `a;Issuer="..."` is indistinguishable from a real Issuer.
-    return builder.finish(this.#options.requireCertHash, this.#options.allowTextIssuer, start);
+    return builder.finish(
+      true,
+      this.#options.requireCertHash,
+      this.#options.allowTextIssuer,
+      start,
+    );
   }
 
-  #pair(
-    builder: ElementBuilder,
-    lastKey: number,
-    emptyUri: boolean,
-  ): { readonly key: Key; readonly emptyUri: boolean } {
+  #pair(builder: ElementBuilder, lastKey: number): Key {
     const keyStart = this.#pos;
     for (;;) {
       const code = this.#peek();
@@ -157,28 +152,14 @@ class Parser {
 
     const mustQuote =
       key === KEY.CERT || key === KEY.CHAIN || key === KEY.SUBJECT || key === KEY.ISSUER;
-    if (mustQuote && !quoted) {
-      throw reject('QUOTE_REQUIRED', valueStart);
-    }
-    if (!mustQuote && quoted) {
-      throw reject('INVALID_ESCAPE', valueStart);
+    if (mustQuote !== quoted) {
+      throw reject('INVALID_QUOTING', valueStart);
     }
     if ((key === KEY.CERT || key === KEY.CHAIN) && value.includes('\\')) {
       throw reject('INVALID_ESCAPE', valueStart);
     }
-    if (key === KEY.URI) {
-      // Envoy emits a lone `URI=` when the certificate has no URI SANs, so any
-      // other URI pair beside it came from a crafted SAN such as
-      // `spiffe://td/admin;URI=`.
-      if (emptyUri || (value === '' && builder.uri.length > 0)) {
-        throw reject('DUPLICATE_KEY', valueStart);
-      }
-      if (value === '') {
-        return { key, emptyUri: true };
-      }
-    }
     builder.set(key, value, true, valueStart);
-    return { key, emptyUri };
+    return key;
   }
 
   /** The text between the quotes, escapes intact. */
@@ -200,7 +181,7 @@ class Parser {
     this.#pos++;
     const next = this.#peek();
     if (!this.#atEnd() && next !== SEMICOLON && next !== COMMA && !isOws(next)) {
-      throw reject('UNEXPECTED_AFTER_QUOTE', this.#pos);
+      throw reject('UNEXPECTED_AFTER_VALUE', this.#pos);
     }
     return inner;
   }
@@ -224,7 +205,7 @@ class Parser {
     if (isOws(this.#peek())) {
       this.#skipOws();
       if (!this.#atEnd() && this.#peek() !== COMMA) {
-        throw reject('INVALID_CHAR', this.#pos);
+        throw reject('UNEXPECTED_AFTER_VALUE', this.#pos);
       }
     }
   }

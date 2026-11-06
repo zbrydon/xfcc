@@ -112,15 +112,15 @@ describe('text format as Envoy writes it', () => {
 
   it('requires quoting to match Envoy', () => {
     const cert = urlEncode(CLIENT_PEM);
-    expect(code(`Hash=${CLIENT_SHA256};Cert=${cert}`)).toBe('QUOTE_REQUIRED');
-    expect(code(`Hash=${CLIENT_SHA256};Chain=${cert}`)).toBe('QUOTE_REQUIRED');
+    expect(code(`Hash=${CLIENT_SHA256};Cert=${cert}`)).toBe('INVALID_QUOTING');
+    expect(code(`Hash=${CLIENT_SHA256};Chain=${cert}`)).toBe('INVALID_QUOTING');
     for (const quoted of [
       `By="http://x";Hash=${HASH_A}`,
       `Hash="${HASH_A}"`,
       `Hash=${HASH_A};URI="http://x"`,
       `Hash=${HASH_A};DNS="lyft.com"`,
     ]) {
-      expect(code(quoted)).toBe('INVALID_ESCAPE');
+      expect(code(quoted)).toBe('INVALID_QUOTING');
     }
   });
 
@@ -257,7 +257,7 @@ describe('SAN injection', () => {
         `${real},By=spiffe://p;Hash=${CLIENT_SHA256};Cert=${cert};URI=spiffe://td/admin`,
         VERIFY,
       ),
-    ).toBe('QUOTE_REQUIRED');
+    ).toBe('INVALID_QUOTING');
     // A SAN that may contain `"` can carry any public certificate with its hash.
     const quoted = `${real},By=spiffe://p;Hash=${CLIENT_SHA256};Cert="${cert}";URI=spiffe://td/admin`;
     expect(parseXfcc(quoted, VERIFY)[1]?.uri).toEqual(['spiffe://td/admin']);
@@ -303,22 +303,22 @@ describe('text format rejections', () => {
     ['Foo=bar', 'UNKNOWN_KEY'],
     [' URI =http://a', 'UNKNOWN_KEY'],
     ['URI=http://a; DNS=lyft.com', 'UNKNOWN_KEY'],
-    ['URI=http://a ;DNS=lyft.com', 'INVALID_CHAR'],
-    ['URI= http://a', 'INVALID_CHAR'],
-    ['URI=http://a b', 'INVALID_CHAR'],
-    ['Subject=CN=a', 'QUOTE_REQUIRED'],
-    ['Issuer=CN=a', 'QUOTE_REQUIRED'],
+    ['URI=http://a ;DNS=lyft.com', 'UNEXPECTED_AFTER_VALUE'],
+    ['URI= http://a', 'UNEXPECTED_AFTER_VALUE'],
+    ['URI=http://a b', 'UNEXPECTED_AFTER_VALUE'],
+    ['Subject=CN=a', 'INVALID_QUOTING'],
+    ['Issuer=CN=a', 'INVALID_QUOTING'],
     ['Subject="CN=a', 'UNTERMINATED_QUOTE'],
-    ['Subject="CN=a"x', 'UNEXPECTED_AFTER_QUOTE'],
-    ['Subject="CN=a""', 'UNEXPECTED_AFTER_QUOTE'],
-    ['Subject="CN=a" ;URI=http://b', 'INVALID_CHAR'],
+    ['Subject="CN=a"x', 'UNEXPECTED_AFTER_VALUE'],
+    ['Subject="CN=a""', 'UNEXPECTED_AFTER_VALUE'],
+    ['Subject="CN=a" ;URI=http://b', 'UNEXPECTED_AFTER_VALUE'],
     ['URI=http://a"b', 'INVALID_ESCAPE'],
     ['URI=http://a\\b', 'INVALID_ESCAPE'],
-    ['URI="http://a\\"b"', 'INVALID_ESCAPE'],
+    ['URI="http://a\\"b"', 'INVALID_QUOTING'],
     ['By=', 'EMPTY_VALUE'],
     ['DNS=', 'EMPTY_VALUE'],
     ['Hash=', 'EMPTY_VALUE'],
-    ['Cert=', 'QUOTE_REQUIRED'],
+    ['Cert=', 'INVALID_QUOTING'],
     ['Cert=""', 'EMPTY_VALUE'],
     ['Chain=""', 'EMPTY_VALUE'],
     ['Hash=abc', 'INVALID_HASH'],
@@ -442,7 +442,8 @@ describe('JSON format', () => {
     ['[null]', 1],
     ['[', 1],
     ['[{]', 2],
-    ['[{}', 3],
+    ['[{}', 2],
+    ['[{"uri":["a:b"]}', 16],
     ['{"uri":["a:b"]}', 0],
     ['URI=a:', 0],
     ['[{"uri":["a:b"]}]x', 17],
@@ -451,7 +452,7 @@ describe('JSON format', () => {
     ['[{"uri":["a:b"]},]', 17],
     ['[{"uri":["a:b",]}]', 15],
     ['[{"uri":["a:b"] "dns":[]}]', 16],
-    ['[{} {}]', 4],
+    ['[{"by":["a:b"]} {}]', 16],
     ['[{"URI":["a:"]}]', 2],
     ['[{"foo":"x"}]', 2],
     ['[{"__proto__":["a:b"]}]', 2],
@@ -480,7 +481,13 @@ describe('JSON format', () => {
     // An array is not a shape Envoy writes, whatever its contents.
     ['[[]]', 1],
     ['[["a:b"]]', 1],
-    ['[{},[]]', 4],
+    ['[{"by":["a:b"]},[]]', 16],
+    // Envoy omits an element's empty fields, but never writes an empty element.
+    ['[{}]', 2],
+    ['[{ }]', 3],
+    // Nor does it escape a key.
+    ['[{"h\\u0061sh":"x"}]', 2],
+    ['[{"ur\\u0069":["a:b"]}]', 2],
   ])('rejects %j as INVALID_JSON at byte %i', (header, offset) => {
     const error = errorOf(() => parseXfcc(header, JSON_FORMAT));
     expect(error.code).toBe('INVALID_JSON');
@@ -492,24 +499,19 @@ describe('JSON format', () => {
       parseXfcc(' [ { "uri" : [ "a:a" , "b:b" ] , "by" : [ "c:c" ] } ]\t', JSON_FORMAT)[0]?.by,
     ).toEqual(['c:c']);
     expect(codeJson('[ { "uri" : [ ] } ]')).toBe('EMPTY_VALUE');
-    expect(parseXfcc(' [ { "uri" : [ "a:a" ] } , { } ]\t', JSON_FORMAT)[0]?.uri).toEqual(['a:a']);
+    expect(
+      parseXfcc(' [ { "uri" : [ "a:a" ] } , { "by" : [ "b:b" ] } ]\t', JSON_FORMAT)[0]?.uri,
+    ).toEqual(['a:a']);
   });
 
   it('decodes every string escape', () => {
     expect(parseXfcc('[{"uri":["a:\\/\\u0062"]}]', JSON_FORMAT)[0]?.uri).toEqual(['a:/b']);
-    expect(parseXfcc('[{"ur\\u0069":["a:b"]}]', JSON_FORMAT)[0]?.uri).toEqual(['a:b']);
     expect(parseXfcc(String.raw`[{"subject":"CN=a\\,O=b"}]`, JSON_FORMAT)[0]?.subject).toBe(
       'CN=a\\,O=b',
     );
     for (const escape of ['\\"', '\\b', '\\f', '\\n', '\\r', '\\t', '\\ud83d\\ude00']) {
       expect(codeJson(`[{"uri":["a:${escape}"]}]`)).toBe('INVALID_URI');
     }
-  });
-
-  it('treats escaped key spellings as the same key', () => {
-    expect(
-      errorOf(() => parseXfcc('[{"ur\\u0069":["a:b"],"uri":["c:d"]}]', JSON_FORMAT)).code,
-    ).toBe('INVALID_JSON');
   });
 
   it('requires non-ASCII to be escaped, then validates it', () => {
@@ -559,21 +561,26 @@ describe('JSON format', () => {
   describe('a surplus element', () => {
     const ONE = { format: 'json' } as const;
 
-    it.each(['[{},{}]', '[{},{"x":1}]', '[{},x]', '[{},[]]', '[{}, 1e'])(
-      'reports %j as TOO_MANY_ELEMENTS',
+    const E = '{"by":["a:b"]}';
+
+    it.each([`[${E},${E}]`, `[${E},{"x":1}]`, `[${E},x]`, `[${E},[]]`, `[${E}, 1e`])(
+      'reports %j as TOO_MANY_ELEMENTS at the surplus element',
       (header) => {
         const error = errorOf(() => parseXfcc(header, ONE));
         expect(error.code).toBe('TOO_MANY_ELEMENTS');
-        expect(error.offset).toBeUndefined();
+        expect(error.offset).toBe(header.indexOf(E) + E.length + (header.includes(', ') ? 2 : 1));
       },
     );
 
-    it.each(['[{},]', '[{}, ]', '[{},'])('does not count the trailing comma in %j', (header) => {
-      expect(code(header, ONE)).toBe('INVALID_JSON');
-    });
+    it.each([`[${E},]`, `[${E}, ]`, `[${E},`])(
+      'does not count the trailing comma in %j',
+      (header) => {
+        expect(code(header, ONE)).toBe('INVALID_JSON');
+      },
+    );
 
     it('accepts exactly the cap', () => {
-      expect(parseXfcc('[{},{}]', { format: 'json', maxElements: 2 })).toHaveLength(2);
+      expect(parseXfcc(`[${E},${E}]`, { format: 'json', maxElements: 2 })).toHaveLength(2);
     });
   });
 });

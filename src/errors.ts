@@ -12,8 +12,9 @@ const MESSAGES = {
   DUPLICATE_KEY: 'single-valued key appears more than once in an element',
   EMPTY_VALUE: 'key has an empty value',
   UNTERMINATED_QUOTE: 'quoted value is not terminated',
-  UNEXPECTED_AFTER_QUOTE: 'unexpected character after closing quote',
-  QUOTE_REQUIRED: 'Cert, Chain, Subject and Issuer values must be double-quoted',
+  UNEXPECTED_AFTER_VALUE: 'unexpected character after value',
+  INVALID_QUOTING:
+    'quoting does not match Envoy (Cert, Chain, Subject and Issuer quoted, other keys not)',
   INVALID_ESCAPE: 'value contains a backslash or quote',
   INVALID_HASH: 'Hash is not a lowercase hex SHA-256 digest',
   INVALID_URI: 'value is not an RFC 3986 URI',
@@ -38,7 +39,7 @@ export type XfccErrorCode = keyof typeof MESSAGES | 'INVALID_OPTION';
 export class XfccError extends Error {
   override readonly name = 'XfccError';
   readonly code: XfccErrorCode;
-  /** Byte offset into the input where the problem was found, if known. */
+  /** Byte offset into the input where the problem was found. Unset for `INVALID_OPTION`. */
   readonly offset: number | undefined;
 
   constructor(code: XfccErrorCode, message: string, offset?: number) {
@@ -55,5 +56,5 @@ export class XfccError extends Error {
 }
 
 /** Builds the error for `code`, with its fixed message. */
-export const reject = (code: keyof typeof MESSAGES, offset?: number): XfccError =>
+export const reject = (code: keyof typeof MESSAGES, offset: number): XfccError =>
   new XfccError(code, MESSAGES[code], offset);

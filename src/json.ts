@@ -1,9 +1,9 @@
 // The JSON format: an array with one object per proxy, lowercase keys.
 //
 // `JSON.parse` is not an option: it keeps the last of a duplicate key and
-// accepts lone surrogates. Unknown keys, duplicate keys, `null`, empty strings
-// and empty arrays are rejected; Envoy omits empty fields rather than emitting
-// them. A `by` or `uri` value containing `Hash=` is rejected as a text-format
+// accepts lone surrogates. Unknown, duplicate and escaped keys, `null`, empty
+// strings, arrays and objects are rejected; Envoy omits empty fields rather
+// than emitting them. A `by` or `uri` value containing `Hash=` is rejected as a text-format
 // element nested in a JSON string (see `toElement`).
 //
 // The whole shape is checked before any value is validated. The caller has
@@ -50,9 +50,21 @@ const ESCAPES: ReadonlyMap<number, string> = new Map([
   [116, '\t'],
 ]);
 
+/** A decoded string and the offset of its opening quote. */
+interface Value {
+  readonly text: string;
+  readonly offset: number;
+}
+
+interface RawList {
+  readonly offset: number;
+  readonly values: Value[];
+}
+
 interface RawElement {
-  readonly lists: Map<Key, string[]>;
-  readonly singles: Map<Key, string>;
+  readonly offset: number;
+  readonly lists: Map<Key, RawList>;
+  readonly singles: Map<Key, Value>;
 }
 
 class Parser {
@@ -117,7 +129,7 @@ class Parser {
         this.#skipWhitespace();
         // A trailing comma or the end of the input is not an extra element.
         if (elements.length === maxElements && this.#startsValue()) {
-          throw reject('TOO_MANY_ELEMENTS');
+          throw reject('TOO_MANY_ELEMENTS', this.#pos);
         }
         elements.push(this.#element());
       } while (this.#more(CLOSE_ARRAY));
@@ -134,32 +146,33 @@ class Parser {
   }
 
   #element(): RawElement {
-    const lists = new Map<Key, string[]>();
-    const singles = new Map<Key, string>();
-    // Only an object: an array here is not a shape Envoy writes.
+    const offset = this.#pos;
+    const lists = new Map<Key, RawList>();
+    const singles = new Map<Key, Value>();
+    // Only a non-empty object: an array or `{}` is not a shape Envoy writes.
     this.#expect(OPEN_OBJECT);
-    if (!this.#tryClose(CLOSE_OBJECT)) {
-      do {
-        this.#field(lists, singles);
-      } while (this.#more(CLOSE_OBJECT));
-    }
-    return { lists, singles };
+    do {
+      this.#field(lists, singles);
+    } while (this.#more(CLOSE_OBJECT));
+    return { offset, lists, singles };
   }
 
-  #field(lists: Map<Key, string[]>, singles: Map<Key, string>): void {
+  #field(lists: Map<Key, RawList>, singles: Map<Key, Value>): void {
     this.#skipWhitespace();
     const keyStart = this.#pos;
     const name = this.#string();
-    const listKey = LIST_KEYS.get(name);
-    const singleKey = SINGLE_KEYS.get(name);
+    // Envoy never escapes a key, so `"h\u0061sh"` is not `hash`.
+    const escaped = this.#input.slice(keyStart, this.#pos).includes('\\');
+    const listKey = escaped ? undefined : LIST_KEYS.get(name);
+    const singleKey = escaped ? undefined : SINGLE_KEYS.get(name);
     if (listKey !== undefined && !lists.has(listKey)) {
       this.#colon();
       lists.set(listKey, this.#list());
     } else if (singleKey !== undefined && !singles.has(singleKey)) {
       this.#colon();
-      singles.set(singleKey, this.#string());
+      singles.set(singleKey, this.#value());
     } else {
-      // Unknown or duplicate.
+      // Unknown, escaped or duplicate.
       throw reject('INVALID_JSON', keyStart);
     }
   }
@@ -169,16 +182,22 @@ class Parser {
     this.#skipWhitespace();
   }
 
-  #list(): string[] {
-    const values: string[] = [];
+  #list(): RawList {
+    const offset = this.#pos;
+    const values: Value[] = [];
     this.#expect(OPEN_ARRAY);
     if (!this.#tryClose(CLOSE_ARRAY)) {
       do {
         this.#skipWhitespace();
-        values.push(this.#string());
+        values.push(this.#value());
       } while (this.#more(CLOSE_ARRAY));
     }
-    return values;
+    return { offset, values };
+  }
+
+  #value(): Value {
+    const offset = this.#pos;
+    return { text: this.#string(), offset };
   }
 
   /** A JSON string, decoded. */
@@ -261,39 +280,36 @@ const SINGLE_ORDER = [KEY.HASH, KEY.CERT, KEY.SUBJECT, KEY.ISSUER] as const;
 const toElement = (raw: RawElement, requireCertHash: boolean): XfccElement => {
   const builder = new ElementBuilder();
   for (const key of LIST_ORDER) {
-    const values = raw.lists.get(key);
-    if (values?.length === 0) {
-      throw reject('EMPTY_VALUE');
+    const list = raw.lists.get(key);
+    if (list?.values.length === 0) {
+      throw reject('EMPTY_VALUE', list.offset);
     }
-    for (const value of values ?? []) {
+    for (const { text, offset } of list?.values ?? []) {
       // With APPEND_FORWARD, Envoy appends in the text format when the incoming
       // header is not a bracketed array. A client-forwarded prefix can open a
       // `by`/`uri` string that swallows that text, and a crafted URI SAN can
       // close it and write the rest of the element. Envoy writes `Hash=` in
       // every text element, and no other field's validator accepts the text,
       // so this rejects every such header.
-      if ((key === KEY.BY || key === KEY.URI) && value.includes('Hash=')) {
-        throw reject('INVALID_URI');
+      if ((key === KEY.BY || key === KEY.URI) && text.includes('Hash=')) {
+        throw reject('INVALID_URI', offset);
       }
-      builder.set(key, value, false);
+      builder.set(key, text, false, offset);
     }
   }
   for (const key of SINGLE_ORDER) {
     const value = raw.singles.get(key);
-    if (value === '') {
-      throw reject('EMPTY_VALUE');
-    }
     if (value !== undefined) {
-      builder.set(key, value, false);
+      builder.set(key, value.text, false, value.offset);
     }
   }
-  return builder.finish(requireCertHash, true);
+  return builder.finish(false, requireCertHash, true, raw.offset);
 };
 
 export const parseJson = (input: string, options: ElementOptions): XfccElement[] => {
   const raw = new Parser(input).header(options.maxElements);
   if (raw.length === 0) {
-    throw reject('EMPTY');
+    throw reject('EMPTY', 0);
   }
   return raw.map((element) => toElement(element, options.requireCertHash));
 };

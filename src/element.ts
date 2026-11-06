@@ -33,7 +33,7 @@ export interface ElementOptions {
  * value did not come from Envoy, and it must not reach consumers that may log
  * it. A blocklist of invisible characters would always be incomplete.
  */
-const checkDn = (value: string, offset: number | undefined): void => {
+const checkDn = (value: string, offset: number): void => {
   for (let i = 0; i < value.length; i++) {
     const code = value.charCodeAt(i);
     if (code < 0x20 || code >= 0x7f) {
@@ -52,24 +52,26 @@ const checkDn = (value: string, offset: number | undefined): void => {
 };
 
 export class ElementBuilder {
-  hash: string | null = null;
+  #hash: string | null = null;
   readonly #by: string[] = [];
   #cert: string | null = null;
   #certDer: Buffer | null = null;
   readonly #presentedChain: string[] = [];
   #subject: string | null = null;
-  readonly uri: string[] = [];
+  readonly #uri: string[] = [];
+  #emptyUri = false;
   readonly #dns: string[] = [];
   #issuer: string | null = null;
 
   /**
-   * Validates and stores one value. `percentEncoded` is the text format's
-   * concatenated `Cert` / `Chain`; JSON has raw PEM, one certificate per value.
-   * Empty values are rejected except for `Subject` / `Issuer`, which Envoy's
-   * text format emits as `""` when absent.
+   * Validates and stores one value. In the `text` format `Cert` / `Chain` are
+   * percent-encoded and `Chain` is concatenated; JSON has raw PEM, one
+   * certificate per value. Empty values are rejected except for the text
+   * format's `Subject` / `Issuer`, which Envoy emits as `""` when absent, and
+   * its lone `URI=`, emitted when there are no URI SANs.
    */
-  set(key: Key, value: string, percentEncoded: boolean, offset?: number): void {
-    if (value === '' && key !== KEY.SUBJECT && key !== KEY.ISSUER) {
+  set(key: Key, value: string, text: boolean, offset: number): void {
+    if (value === '' && !(text && (key === KEY.SUBJECT || key === KEY.ISSUER || key === KEY.URI))) {
       throw reject('EMPTY_VALUE', offset);
     }
     switch (key) {
@@ -80,10 +82,18 @@ export class ElementBuilder {
         this.#by.push(value);
         break;
       case KEY.URI:
-        if (!validUri(value)) {
+        // Any other URI pair beside a lone `URI=` came from a crafted SAN such
+        // as `spiffe://td/admin;URI=`.
+        if (this.#emptyUri || (value === '' && this.#uri.length > 0)) {
+          throw reject('DUPLICATE_KEY', offset);
+        }
+        if (value === '') {
+          this.#emptyUri = true;
+        } else if (validUri(value)) {
+          this.#uri.push(value);
+        } else {
           throw reject('INVALID_URI', offset);
         }
-        this.uri.push(value);
         break;
       case KEY.DNS:
         if (!validDns(value)) {
@@ -95,10 +105,10 @@ export class ElementBuilder {
         if (!validHash(value)) {
           throw reject('INVALID_HASH', offset);
         }
-        if (this.hash !== null) {
+        if (this.#hash !== null) {
           throw reject('DUPLICATE_KEY', offset);
         }
-        this.hash = value;
+        this.#hash = value;
         break;
       case KEY.SUBJECT:
         checkDn(value, offset);
@@ -118,7 +128,7 @@ export class ElementBuilder {
         if (this.#cert !== null) {
           throw reject('DUPLICATE_KEY', offset);
         }
-        const block = parseCertificate(percentEncoded ? decode(value, offset) : value);
+        const block = parseCertificate(text ? decode(value, offset) : value);
         if (block === undefined) {
           throw reject('INVALID_PEM', offset);
         }
@@ -127,7 +137,7 @@ export class ElementBuilder {
         break;
       }
       case KEY.CHAIN:
-        if (percentEncoded) {
+        if (text) {
           // A valid `Chain` is never an empty list, so a non-empty chain means
           // `Chain` was already seen.
           if (this.#presentedChain.length > 0) {
@@ -149,30 +159,38 @@ export class ElementBuilder {
     }
   }
 
-  /** The frozen element, once `requireCertHash` holds. */
-  finish(requireCertHash: boolean, keepIssuer: boolean, offset?: number): XfccElement {
+  /** The frozen element, once `requireHash` and `requireCertHash` hold. */
+  finish(
+    requireHash: boolean,
+    requireCertHash: boolean,
+    keepIssuer: boolean,
+    offset: number,
+  ): XfccElement {
+    if (requireHash && this.#hash === null) {
+      throw reject('MISSING_HASH', offset);
+    }
     if (requireCertHash) {
-      if (this.#certDer === null || this.hash === null) {
+      if (this.#certDer === null || this.#hash === null) {
         throw reject('MISSING_CERT_OR_HASH', offset);
       }
-      if (sha256Hex(this.#certDer) !== this.hash) {
+      if (sha256Hex(this.#certDer) !== this.#hash) {
         throw reject('HASH_MISMATCH', offset);
       }
     }
     return Object.freeze({
       by: Object.freeze(this.#by),
-      hash: this.hash,
+      hash: this.#hash,
       cert: this.#cert,
       presentedChain: Object.freeze(this.#presentedChain),
       subject: this.#subject,
-      uri: Object.freeze(this.uri),
+      uri: Object.freeze(this.#uri),
       dns: Object.freeze(this.#dns),
       issuer: keepIssuer ? this.#issuer : null,
     });
   }
 }
 
-const decode = (value: string, offset: number | undefined): string => {
+const decode = (value: string, offset: number): string => {
   const decoded = percentDecode(value);
   if (decoded === null) {
     throw reject('INVALID_PERCENT_ENCODING', offset);
