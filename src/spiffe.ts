@@ -138,11 +138,15 @@ export const safeGetPeerSpiffeId = (
   header: string | readonly string[] | undefined,
   options: PeerSpiffeIdOptions,
 ): SpiffeIdResult => {
-  // Anything that is not an object is passed through for `safeParseXfcc` to
-  // reject.
+  // Anything that is not a plain or null-prototype object is passed through
+  // for `safeParseXfcc` to reject, before the spread drops inherited keys.
   let parseOptions: ParseOptions = options;
   let requireSingleSan: unknown = false;
-  if (typeof options === 'object' && options !== null && !Array.isArray(options)) {
+  if (
+    typeof options === 'object' &&
+    options !== null &&
+    (Object.getPrototypeOf(options) ?? Object.prototype) === Object.prototype
+  ) {
     ({ requireSingleSan = false, ...parseOptions } = { __proto__: null, ...options });
   }
   if (typeof requireSingleSan !== 'boolean') {

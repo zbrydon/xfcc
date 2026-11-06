@@ -70,7 +70,7 @@ Parses a header value and returns a deeply frozen array of elements in header or
 - `options.requireCertHash`: when `true`, every element must have both `Cert` and `Hash`, and `Hash` must equal the SHA-256 of `Cert`'s DER. Defaults to `false`. This proves only that `Hash` and `Cert` in the same element agree, not that your proxy wrote the element.
 - `options.allowTextIssuer`: when `true`, return `issuer` from the text format. Defaults to `false`, so `issuer` is always `null` in the text format: a crafted URI SAN `a;Issuer="..."` is byte-for-byte a real `Issuer` pair. `Issuer` is still validated either way. Has no effect on the JSON format.
 
-`options` must be an object with `format` set. An unknown key, such as a misspelt `maxElement`, is rejected with `INVALID_OPTION` rather than ignored. Only its own keys are read, so a polluted `Object.prototype` cannot change a default.
+`options` must be a plain object (or one with a `null` prototype) with `format` set. An unknown key, such as a misspelt `maxElement`, is rejected with `INVALID_OPTION` rather than ignored. Only its own keys are read, so a polluted `Object.prototype` cannot change a default, and any other prototype, such as a class instance, is rejected with `INVALID_OPTION` rather than having its inherited options ignored.
 
 | Field            | Type                | Notes                                                                                                                 |
 | ---------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------- |

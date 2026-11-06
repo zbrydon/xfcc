@@ -177,6 +177,28 @@ describe('parseXfcc', () => {
     }
   });
 
+  it('rejects options that are not a plain or null-prototype object', () => {
+    const inherited = { __proto__: { requireCertHash: true }, format: 'text' } as const;
+    class Getter {
+      format = 'text';
+      get requireCertHash() {
+        return true;
+      }
+    }
+    for (const options of [inherited, new Getter(), [], new Date()]) {
+      // @ts-expect-error -- deliberately invalid at runtime
+      expect(codeOf(() => parseXfcc(`Hash=${HASH}`, options))).toBe('INVALID_OPTION');
+      // @ts-expect-error -- deliberately invalid at runtime
+      expect(codeOf(() => getPeerSpiffeId(`Hash=${HASH}`, options))).toBe('INVALID_OPTION');
+    }
+    const bare = { __proto__: null, format: 'text' } as const;
+    expect(parseXfcc(`Hash=${HASH}`, bare)[0]?.hash).toBe(HASH);
+    expect(safeGetPeerSpiffeId(`Hash=${HASH}`, bare)).toMatchObject({
+      ok: false,
+      error: { code: 'NOT_ONE_URI' },
+    });
+  });
+
   it('reads the same options in parseXfcc and getPeerSpiffeId', () => {
     const options = { format: 'text' } as const;
     Object.defineProperty(options, 'maxElements', { value: 2 });

@@ -110,8 +110,15 @@ interface NormalizedOptions {
 const normalizeOptions = (
   options: ParseOptions | null | undefined,
 ): NormalizedOptions | XfccError => {
-  if (typeof options !== 'object' || options === null || Array.isArray(options)) {
-    return new XfccError('INVALID_OPTION', 'options must be an object');
+  // Only a plain or null-prototype object. Inherited keys are dropped below, so
+  // a class getter or parent object could otherwise silently turn off a check
+  // like `requireCertHash`. This also rejects arrays.
+  if (
+    typeof options !== 'object' ||
+    options === null ||
+    (Object.getPrototypeOf(options) ?? Object.prototype) !== Object.prototype
+  ) {
+    return new XfccError('INVALID_OPTION', 'options must be a plain object');
   }
   // Only own enumerable keys, the ones checked below: an inherited
   // `Object.prototype.maxElements` or a hidden key must not count.
