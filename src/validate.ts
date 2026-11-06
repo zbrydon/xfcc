@@ -72,16 +72,20 @@ const isLdhLabel = (label: string): boolean =>
 
 /**
  * `DNS`: RFC 5280 §4.2.1.6 dNSName in RFC 1034 preferred name syntax (as
- * relaxed by RFC 1123 §2.1 to allow a leading digit), with an optional
- * RFC 9525 §6.3 wildcard as the complete leftmost label. Underscores, partial
- * wildcards, empty labels and a trailing dot are rejected.
+ * relaxed by RFC 1123 §2.1 to allow a leading digit, but not an all-numeric
+ * top-level label), with an optional RFC 9525 §6.3 wildcard as the complete
+ * leftmost label. Underscores, partial wildcards, empty labels, a trailing dot
+ * and dotted-decimal names such as `1.2.3.4` are rejected.
  */
 export const validDns = (value: string): boolean => {
   if (value.length > MAX_DNS_NAME_LEN) {
     return false;
   }
   const rest = value.startsWith('*.') ? value.slice(2) : value;
-  return rest.split('.').every(isLdhLabel);
+  return (
+    rest.split('.').every(isLdhLabel) &&
+    skip(value, value.lastIndexOf('.') + 1, DIGIT_TABLE) !== value.length
+  );
 };
 
 const validPercentEncoding = (value: string): boolean => {
