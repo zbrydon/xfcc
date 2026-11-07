@@ -29,6 +29,7 @@ const parse = (input) => {
     return parseDistinguishedName(input);
   } catch (error) {
     ok(error instanceof XfccError);
+    ok(Number.isSafeInteger(error.offset) && error.offset >= 0);
     return null;
   }
 };

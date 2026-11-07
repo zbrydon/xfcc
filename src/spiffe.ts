@@ -1,4 +1,7 @@
-import { safeParseXfcc, XfccError, type ParseOptions, type XfccElement } from './index.ts';
+import { StacklessError, XfccError } from './errors.ts';
+import { PARSE_OPTION_KEYS, readOptions } from './validate.ts';
+
+import { safeParseXfcc, type ParseOptions, type XfccElement } from './index.ts';
 
 /** Maximum length of a SPIFFE ID in bytes, per the SPIFFE-ID standard. */
 const MAX_SPIFFE_ID_LENGTH = 2048;
@@ -14,16 +17,12 @@ export type SpiffeErrorCode =
  * Thrown when the nearest element does not carry exactly one valid SPIFFE ID.
  * The message never contains input, so it is safe to log.
  */
-export class SpiffeError extends Error {
+export class SpiffeError extends StacklessError {
   override readonly name = 'SpiffeError';
   readonly code: SpiffeErrorCode;
 
   constructor(code: SpiffeErrorCode, message: string) {
-    // The stack of an error about untrusted input says nothing useful.
-    const { stackTraceLimit } = Error;
-    Error.stackTraceLimit = 0;
     super(`${code}: ${message}`);
-    Error.stackTraceLimit = stackTraceLimit;
     this.code = code;
   }
 }
@@ -62,20 +61,9 @@ export interface SpiffeIdOptions {
 /** The options of `getPeerSpiffeId`: those of `parseXfcc`, plus `SpiffeIdOptions`. */
 export interface PeerSpiffeIdOptions extends ParseOptions, SpiffeIdOptions {}
 
-// Returns an error message, or undefined when the options are valid.
-const checkSpiffeIdOptions = (options: SpiffeIdOptions | null | undefined): string | undefined => {
-  if (typeof options !== 'object' || options === null || Array.isArray(options)) {
-    return 'options must be an object';
-  }
-  if (!Object.keys(options).every((key) => key === 'requireSingleSan')) {
-    return 'options has an unknown key';
-  }
-  const { requireSingleSan } = options;
-  if (requireSingleSan !== undefined && typeof requireSingleSan !== 'boolean') {
-    return 'requireSingleSan is out of range';
-  }
-  return undefined;
-};
+const INVALID_REQUIRE_SINGLE_SAN = 'requireSingleSan is out of range';
+const SPIFFE_ID_KEYS: ReadonlySet<string> = new Set(['requireSingleSan']);
+const PEER_KEYS: ReadonlySet<string> = new Set([...PARSE_OPTION_KEYS, 'requireSingleSan']);
 
 /**
  * Reads the SPIFFE ID of the client certificate in `element`.
@@ -92,15 +80,23 @@ const checkSpiffeIdOptions = (options: SpiffeIdOptions | null | undefined): stri
  * @throws {TypeError} if `options` is invalid.
  */
 export const spiffeIdOf = (element: XfccElement, options: SpiffeIdOptions = {}): SpiffeId => {
-  const invalid = checkSpiffeIdOptions(options);
-  if (invalid !== undefined) {
-    throw new TypeError(invalid);
+  const own = readOptions(options, SPIFFE_ID_KEYS);
+  if (typeof own === 'string') {
+    throw new TypeError(own);
   }
+  const { requireSingleSan = false } = own;
+  if (typeof requireSingleSan !== 'boolean') {
+    throw new TypeError(INVALID_REQUIRE_SINGLE_SAN);
+  }
+  return readSpiffeId(element, requireSingleSan);
+};
+
+const readSpiffeId = (element: XfccElement, requireSingleSan: boolean): SpiffeId => {
   const [uri, ...rest] = element.uri;
   if (uri === undefined || rest.length > 0) {
     throw new SpiffeError('NOT_ONE_URI', 'expected exactly one URI SAN');
   }
-  if (options.requireSingleSan === true && element.dns.length > 0) {
+  if (requireSingleSan && element.dns.length > 0) {
     throw new SpiffeError('NOT_ONE_SAN', 'expected no SAN besides the URI SAN');
   }
   if (!uri.startsWith('spiffe://')) {
@@ -141,18 +137,13 @@ export const safeGetPeerSpiffeId = (
   header: string | readonly string[] | undefined,
   options: PeerSpiffeIdOptions,
 ): SpiffeIdResult => {
-  // Anything that is not an object is passed through for `safeParseXfcc` to
-  // reject.
-  let parseOptions: ParseOptions = options;
-  let spiffeOptions: SpiffeIdOptions = {};
-  if (typeof options === 'object' && options !== null && !Array.isArray(options)) {
-    const { requireSingleSan, ...rest } = options;
-    parseOptions = rest;
-    spiffeOptions = requireSingleSan === undefined ? {} : { requireSingleSan };
-    const invalid = checkSpiffeIdOptions(spiffeOptions);
-    if (invalid !== undefined) {
-      return fail(new XfccError('INVALID_OPTION', invalid));
-    }
+  const own = readOptions(options, PEER_KEYS);
+  if (typeof own === 'string') {
+    return fail(new XfccError('INVALID_OPTION', own));
+  }
+  const { requireSingleSan = false, ...parseOptions } = own;
+  if (typeof requireSingleSan !== 'boolean') {
+    return fail(new XfccError('INVALID_OPTION', INVALID_REQUIRE_SINGLE_SAN));
   }
   const parsed = safeParseXfcc(header, parseOptions);
   if (!parsed.ok) {
@@ -164,7 +155,7 @@ export const safeGetPeerSpiffeId = (
     return fail(new SpiffeError('NO_PEER', 'header has no elements'));
   }
   try {
-    return Object.freeze({ ok: true, value: spiffeIdOf(nearest, spiffeOptions) });
+    return Object.freeze({ ok: true, value: readSpiffeId(nearest, requireSingleSan) });
   } catch (error) {
     if (error instanceof SpiffeError) {
       return fail(error);

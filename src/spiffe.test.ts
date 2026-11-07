@@ -142,6 +142,17 @@ describe('getPeerSpiffeId', () => {
     expect(getPeerSpiffeId(header, TEXT).id).toBe('spiffe://td/x');
   });
 
+  it('ignores requireSingleSan inherited from Object.prototype', () => {
+    Object.assign(Object.prototype, { requireSingleSan: 'yes' });
+    try {
+      const header = `Hash=${HASH};URI=spiffe://td/x;DNS=admin.internal`;
+      expect(getPeerSpiffeId(header, TEXT).id).toBe('spiffe://td/x');
+      expect(spiffeIdOf({ ...element(API), dns: ['admin.internal'] }).id).toBe(API);
+    } finally {
+      Reflect.deleteProperty(Object.prototype, 'requireSingleSan');
+    }
+  });
+
   it('rejects any DNS SAN when requireSingleSan is set', () => {
     const header = `Hash=${HASH};URI=spiffe://td/x;DNS=admin.internal`;
     expect(codeOf(() => getPeerSpiffeId(header, { format: 'text', requireSingleSan: true }))).toBe(
@@ -230,6 +241,20 @@ describe('spiffeIdOf', () => {
   ])('throws TypeError for options %j', (options) => {
     // @ts-expect-error -- deliberately invalid at runtime
     expect(() => spiffeIdOf(element(API), options)).toThrow(TypeError);
+  });
+
+  it('throws TypeError for a requireSingleSan it would otherwise ignore', () => {
+    class Getter {
+      get requireSingleSan() {
+        return true;
+      }
+    }
+    const hidden = {};
+    Object.defineProperty(hidden, 'requireSingleSan', { value: true });
+    const withDns = { ...element(API), dns: ['admin.internal'] };
+    for (const options of [{ __proto__: { requireSingleSan: true } }, new Getter(), hidden]) {
+      expect(() => spiffeIdOf(withDns, options)).toThrow(TypeError);
+    }
   });
 
   it('accepts a 2048 byte ID', () => {

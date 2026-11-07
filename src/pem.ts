@@ -117,8 +117,10 @@ class Lines {
 }
 
 /**
- * Parses one or more concatenated certificates, as RFC 7468 §3
- * `stricttextualmsg` with the `CERTIFICATE` label. Nothing may appear before,
+ * Parses one or more concatenated certificates with the `CERTIFICATE` label.
+ * The body follows the RFC 7468 §3 `stricttextualmsg` grammar, but trailing
+ * whitespace after the `BEGIN` / `END` lines and a missing final line break
+ * are accepted, as RFC 7468 parsers should. Nothing else may appear before,
  * between or after the blocks. An empty list means the text is not valid.
  */
 export const parseCertificates = (text: string): PemBlock[] => {

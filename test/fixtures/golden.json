@@ -524,7 +524,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "INVALID_CHAR",
+    "code": "UNEXPECTED_AFTER_VALUE",
     "offset": 7
    }
   },
@@ -536,7 +536,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "INVALID_CHAR",
+    "code": "UNEXPECTED_AFTER_VALUE",
     "offset": 5
    }
   },
@@ -548,7 +548,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "INVALID_CHAR",
+    "code": "UNEXPECTED_AFTER_VALUE",
     "offset": 7
    }
   },
@@ -560,7 +560,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "QUOTE_REQUIRED",
+    "code": "INVALID_QUOTING",
     "offset": 8
    }
   },
@@ -572,7 +572,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "QUOTE_REQUIRED",
+    "code": "INVALID_QUOTING",
     "offset": 7
    }
   },
@@ -584,7 +584,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "QUOTE_REQUIRED",
+    "code": "INVALID_QUOTING",
     "offset": 5
    }
   },
@@ -596,7 +596,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "QUOTE_REQUIRED",
+    "code": "INVALID_QUOTING",
     "offset": 6
    }
   },
@@ -644,7 +644,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "UNEXPECTED_AFTER_QUOTE",
+    "code": "UNEXPECTED_AFTER_VALUE",
     "offset": 14
    }
   },
@@ -656,7 +656,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "UNEXPECTED_AFTER_QUOTE",
+    "code": "UNEXPECTED_AFTER_VALUE",
     "offset": 14
    }
   },
@@ -668,7 +668,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "INVALID_CHAR",
+    "code": "UNEXPECTED_AFTER_VALUE",
     "offset": 15
    }
   },
@@ -704,7 +704,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "INVALID_ESCAPE",
+    "code": "INVALID_QUOTING",
     "offset": 4
    }
   },
@@ -716,7 +716,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "INVALID_ESCAPE",
+    "code": "INVALID_QUOTING",
     "offset": 3
    }
   },
@@ -728,7 +728,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "INVALID_ESCAPE",
+    "code": "INVALID_QUOTING",
     "offset": 5
    }
   },
@@ -740,7 +740,7 @@
     "allowTextIssuer": true
    },
    "expected": {
-    "code": "INVALID_ESCAPE",
+    "code": "INVALID_QUOTING",
     "offset": 74
    }
   },
@@ -2806,7 +2806,7 @@
    },
    "expected": {
     "code": "INVALID_HASH",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -2817,7 +2817,7 @@
    },
    "expected": {
     "code": "EMPTY",
-    "offset": null
+    "offset": 0
    }
   },
   {
@@ -2828,7 +2828,7 @@
    },
    "expected": {
     "code": "EMPTY",
-    "offset": null
+    "offset": 0
    }
   },
   {
@@ -2838,22 +2838,12 @@
     "maxElements": 8
    },
    "expected": {
-    "value": [
-     {
-      "by": [],
-      "hash": null,
-      "cert": null,
-      "presentedChain": [],
-      "subject": null,
-      "uri": [],
-      "dns": [],
-      "issuer": null
-     }
-    ]
+    "code": "INVALID_JSON",
+    "offset": 2
    }
   },
   {
-   "input": "[{},{}]",
+   "input": "[{\"by\":[\"a:b\"]},{\"by\":[\"a:b\"]}]",
    "options": {
     "format": "json",
     "maxElements": 8
@@ -2861,7 +2851,9 @@
    "expected": {
     "value": [
      {
-      "by": [],
+      "by": [
+       "a:b"
+      ],
       "hash": null,
       "cert": null,
       "presentedChain": [],
@@ -2871,7 +2863,9 @@
       "issuer": null
      },
      {
-      "by": [],
+      "by": [
+       "a:b"
+      ],
       "hash": null,
       "cert": null,
       "presentedChain": [],
@@ -2884,13 +2878,13 @@
    }
   },
   {
-   "input": "[{},{}]",
+   "input": "[{\"by\":[\"a:b\"]},{\"by\":[\"a:b\"]}]",
    "options": {
     "format": "json"
    },
    "expected": {
     "code": "TOO_MANY_ELEMENTS",
-    "offset": null
+    "offset": 16
    }
   },
   {
@@ -2950,7 +2944,7 @@
    },
    "expected": {
     "code": "HASH_MISMATCH",
-    "offset": null
+    "offset": 1
    }
   },
   {
@@ -2962,7 +2956,7 @@
    },
    "expected": {
     "code": "MISSING_CERT_OR_HASH",
-    "offset": null
+    "offset": 1
    }
   },
   {
@@ -2973,7 +2967,7 @@
    },
    "expected": {
     "code": "INVALID_PEM",
-    "offset": null
+    "offset": 11
    }
   },
   {
@@ -2984,7 +2978,7 @@
    },
    "expected": {
     "code": "INVALID_PEM",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3081,20 +3075,8 @@
     "maxElements": 8
    },
    "expected": {
-    "value": [
-     {
-      "by": [],
-      "hash": null,
-      "cert": null,
-      "presentedChain": [],
-      "subject": null,
-      "uri": [
-       "a:b"
-      ],
-      "dns": [],
-      "issuer": null
-     }
-    ]
+    "code": "INVALID_JSON",
+    "offset": 2
    }
   },
   {
@@ -3171,7 +3153,7 @@
    },
    "expected": {
     "code": "EMPTY_VALUE",
-    "offset": null
+    "offset": 8
    }
   },
   {
@@ -3182,7 +3164,7 @@
    },
    "expected": {
     "code": "EMPTY_VALUE",
-    "offset": null
+    "offset": 12
    }
   },
   {
@@ -3193,7 +3175,7 @@
    },
    "expected": {
     "code": "EMPTY_VALUE",
-    "offset": null
+    "offset": 11
    }
   },
   {
@@ -3204,7 +3186,7 @@
    },
    "expected": {
     "code": "EMPTY_VALUE",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3215,7 +3197,7 @@
    },
    "expected": {
     "code": "EMPTY_VALUE",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3226,7 +3208,7 @@
    },
    "expected": {
     "code": "EMPTY_VALUE",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3237,7 +3219,7 @@
    },
    "expected": {
     "code": "EMPTY_VALUE",
-    "offset": null
+    "offset": 11
    }
   },
   {
@@ -3248,7 +3230,7 @@
    },
    "expected": {
     "code": "EMPTY_VALUE",
-    "offset": null
+    "offset": 8
    }
   },
   {
@@ -3259,7 +3241,7 @@
    },
    "expected": {
     "code": "INVALID_URI",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3270,7 +3252,7 @@
    },
    "expected": {
     "code": "INVALID_DNS",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3281,7 +3263,7 @@
    },
    "expected": {
     "code": "INVALID_CHAR",
-    "offset": null
+    "offset": 12
    }
   },
   {
@@ -3292,7 +3274,7 @@
    },
    "expected": {
     "code": "INVALID_CHAR",
-    "offset": null
+    "offset": 12
    }
   },
   {
@@ -3303,7 +3285,7 @@
    },
    "expected": {
     "code": "INVALID_CHAR",
-    "offset": null
+    "offset": 12
    }
   },
   {
@@ -3314,7 +3296,7 @@
    },
    "expected": {
     "code": "INVALID_CHAR",
-    "offset": null
+    "offset": 11
    }
   },
   {
@@ -3325,7 +3307,7 @@
    },
    "expected": {
     "code": "INVALID_CHAR",
-    "offset": null
+    "offset": 12
    }
   },
   {
@@ -3357,7 +3339,7 @@
    },
    "expected": {
     "code": "INVALID_URI",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3368,7 +3350,7 @@
    },
    "expected": {
     "code": "INVALID_PEM",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3379,7 +3361,7 @@
    },
    "expected": {
     "code": "INVALID_PEM",
-    "offset": null
+    "offset": 11
    }
   },
   {
@@ -3390,7 +3372,7 @@
    },
    "expected": {
     "code": "INVALID_DN",
-    "offset": null
+    "offset": 12
    }
   },
   {
@@ -3401,7 +3383,7 @@
    },
    "expected": {
     "code": "INVALID_CHAR",
-    "offset": null
+    "offset": 12
    }
   },
   {
@@ -3458,7 +3440,7 @@
    },
    "expected": {
     "code": "INVALID_URI",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3469,7 +3451,7 @@
    },
    "expected": {
     "code": "INVALID_URI",
-    "offset": null
+    "offset": 8
    }
   },
   {
@@ -3480,7 +3462,7 @@
    },
    "expected": {
     "code": "INVALID_URI",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3491,7 +3473,7 @@
    },
    "expected": {
     "code": "INVALID_URI",
-    "offset": null
+    "offset": 8
    }
   },
   {
@@ -3502,7 +3484,7 @@
    },
    "expected": {
     "code": "INVALID_PEM",
-    "offset": null
+    "offset": 11
    }
   },
   {
@@ -3513,7 +3495,7 @@
    },
    "expected": {
     "code": "INVALID_URI",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3524,7 +3506,7 @@
    },
    "expected": {
     "code": "INVALID_DNS",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3535,7 +3517,7 @@
    },
    "expected": {
     "code": "INVALID_HASH",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3546,7 +3528,7 @@
    },
    "expected": {
     "code": "INVALID_PEM",
-    "offset": null
+    "offset": 9
    }
   },
   {
@@ -3557,7 +3539,7 @@
    },
    "expected": {
     "code": "INVALID_DN",
-    "offset": null
+    "offset": 12
    }
   },
   {
@@ -4032,6 +4014,36 @@
    "expected": {
     "code": "INVALID_JSON",
     "offset": 21
+   }
+  },
+  {
+   "input": "[{\"h\\u0061sh\":\"468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688\"}]",
+   "options": {
+    "format": "json"
+   },
+   "expected": {
+    "code": "INVALID_JSON",
+    "offset": 2
+   }
+  },
+  {
+   "input": "Hash=468ed33be74eee6556d90c0149c1309e9ba61d6425303443c0748a02dd8de688;DNS=1.2.3.4",
+   "options": {
+    "format": "text"
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 74
+   }
+  },
+  {
+   "input": "[{\"dns\":[\"123\"]}]",
+   "options": {
+    "format": "json"
+   },
+   "expected": {
+    "code": "INVALID_DNS",
+    "offset": 9
    }
   }
  ],
@@ -4595,7 +4607,7 @@
    "input": "CN=\ud800",
    "expected": {
     "code": "INVALID_DN",
-    "offset": null
+    "offset": 3
    }
   },
   {

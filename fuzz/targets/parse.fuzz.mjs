@@ -17,7 +17,9 @@ export const fuzz = (data) => {
         allowTextIssuer,
       });
       if (!result.ok) {
+        // The options are valid, so every error is about input and has an offset.
         ok(result.error instanceof XfccError);
+        ok(Number.isSafeInteger(result.error.offset) && result.error.offset >= 0);
         continue;
       }
       // Fail-closed invariants of every accepted element.

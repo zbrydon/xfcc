@@ -45,8 +45,10 @@ const label = fc
   )
   .map(([first, middle, last]) => `${first}${middle}${last}`);
 
+// RFC 1123 §2.1: the top-level label is never all-numeric.
 const dns = fc
   .tuple(fc.boolean(), fc.array(label, { minLength: 1, maxLength: 4 }))
+  .filter(([, labels]) => !/^[0-9]+$/.test(labels.at(-1) ?? ''))
   .map(([wildcard, labels]) => `${wildcard ? '*.' : ''}${labels.join('.')}`);
 
 const hash = stringOf('0123456789abcdef', 64, 64);

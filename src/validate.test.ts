@@ -106,6 +106,8 @@ describe('validDns', () => {
     '*.lyft.com',
     'a-b.c',
     `${'a'.repeat(63)}.com`,
+    'a.b1',
+    'xn--p1ai',
   ])('accepts %j', (value) => {
     expect(validDns(value)).toBe(true);
   });
@@ -128,6 +130,11 @@ describe('validDns', () => {
     'lyft.com,evil',
     'a'.repeat(64),
     Array.from({ length: 128 }, () => 'a').join('.'),
+    // RFC 1123 §2.1: the top-level label is never all-numeric.
+    '1.2.3.4',
+    '123',
+    'a.1',
+    '*.123',
   ])('rejects %j', (value) => {
     expect(validDns(value)).toBe(false);
   });

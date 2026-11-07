@@ -50,9 +50,10 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # Not `pnpm lint`, which builds again.
       - name: Lint
         if: matrix.node == '26.12.1'
-        run: pnpm lint
+        run: pnpm lint:check
 
       - name: Test
         run: pnpm test:ci

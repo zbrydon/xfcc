@@ -12,8 +12,9 @@ const MESSAGES = {
   DUPLICATE_KEY: 'single-valued key appears more than once in an element',
   EMPTY_VALUE: 'key has an empty value',
   UNTERMINATED_QUOTE: 'quoted value is not terminated',
-  UNEXPECTED_AFTER_QUOTE: 'unexpected character after closing quote',
-  QUOTE_REQUIRED: 'Cert, Chain, Subject and Issuer values must be double-quoted',
+  UNEXPECTED_AFTER_VALUE: 'unexpected character after value',
+  INVALID_QUOTING:
+    'quoting does not match Envoy (Cert, Chain, Subject and Issuer quoted, other keys not)',
   INVALID_ESCAPE: 'value contains a backslash or quote',
   INVALID_HASH: 'Hash is not a lowercase hex SHA-256 digest',
   INVALID_URI: 'value is not an RFC 3986 URI',
@@ -31,28 +32,36 @@ const MESSAGES = {
 // `INVALID_OPTION` has no fixed message: each caller names the option.
 export type XfccErrorCode = keyof typeof MESSAGES | 'INVALID_OPTION';
 
+/** An error with no stack trace. */
+export class StacklessError extends Error {
+  constructor(message: string) {
+    // Capturing a stack trace is most of the cost of rejecting a header, and
+    // the stack of an error about untrusted input says nothing useful.
+    // `Reflect.set` fails quietly where `Error` is frozen (SES lockdown, say).
+    const { stackTraceLimit } = Error;
+    Reflect.set(Error, 'stackTraceLimit', 0);
+    super(message);
+    Reflect.set(Error, 'stackTraceLimit', stackTraceLimit);
+  }
+}
+
 /**
  * Thrown for any header or distinguished name that does not strictly match
  * the format. The message never contains input, so it is safe to log.
  */
-export class XfccError extends Error {
+export class XfccError extends StacklessError {
   override readonly name = 'XfccError';
   readonly code: XfccErrorCode;
-  /** Byte offset into the input where the problem was found, if known. */
+  /** Byte offset into the input where the problem was found. Unset for `INVALID_OPTION`. */
   readonly offset: number | undefined;
 
   constructor(code: XfccErrorCode, message: string, offset?: number) {
-    // Capturing a stack trace is most of the cost of rejecting a header, and
-    // the stack of an error about untrusted input says nothing useful.
-    const { stackTraceLimit } = Error;
-    Error.stackTraceLimit = 0;
     super(offset === undefined ? `${code}: ${message}` : `${code}: ${message} (at byte ${offset})`);
-    Error.stackTraceLimit = stackTraceLimit;
     this.code = code;
     this.offset = offset;
   }
 }
 
 /** Builds the error for `code`, with its fixed message. */
-export const reject = (code: keyof typeof MESSAGES, offset?: number): XfccError =>
+export const reject = (code: keyof typeof MESSAGES, offset: number): XfccError =>
   new XfccError(code, MESSAGES[code], offset);

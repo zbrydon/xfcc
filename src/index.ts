@@ -2,6 +2,7 @@ import { parseDn, type DnAttribute } from './dn.ts';
 import { reject, XfccError } from './errors.ts';
 import { parseJson } from './json.ts';
 import { parseText } from './text.ts';
+import { PARSE_OPTION_KEYS, readOptions } from './validate.ts';
 
 export { XfccError, type XfccErrorCode } from './errors.ts';
 export type { DnAttribute } from './dn.ts';
@@ -90,14 +91,6 @@ const checkInteger = (
   return value;
 };
 
-const OPTION_KEYS: ReadonlySet<string> = new Set([
-  'maxLength',
-  'maxElements',
-  'format',
-  'requireCertHash',
-  'allowTextIssuer',
-]);
-
 interface NormalizedOptions {
   readonly maxLength: number;
   readonly maxElements: number;
@@ -110,14 +103,11 @@ interface NormalizedOptions {
 const normalizeOptions = (
   options: ParseOptions | null | undefined,
 ): NormalizedOptions | XfccError => {
-  if (typeof options !== 'object' || options === null || Array.isArray(options)) {
-    return new XfccError('INVALID_OPTION', 'options must be an object');
+  const own = readOptions(options, PARSE_OPTION_KEYS);
+  if (typeof own === 'string') {
+    return new XfccError('INVALID_OPTION', own);
   }
-  // A misspelt key would otherwise silently drop a mitigation like `maxElements`.
-  if (!Object.keys(options).every((key) => OPTION_KEYS.has(key))) {
-    return new XfccError('INVALID_OPTION', 'options has an unknown key');
-  }
-  const { format, requireCertHash, allowTextIssuer } = options;
+  const { format, requireCertHash, allowTextIssuer } = own;
   if (format === undefined) {
     return new XfccError('INVALID_OPTION', 'format is required');
   }
@@ -130,11 +120,11 @@ const normalizeOptions = (
   if (allowTextIssuer !== undefined && typeof allowTextIssuer !== 'boolean') {
     return invalidOption('allowTextIssuer');
   }
-  const maxLength = checkInteger('maxLength', options.maxLength, MAX_LENGTH_LIMIT);
+  const maxLength = checkInteger('maxLength', own.maxLength, MAX_LENGTH_LIMIT);
   if (maxLength instanceof XfccError) {
     return maxLength;
   }
-  const maxElements = checkInteger('maxElements', options.maxElements, MAX_ELEMENTS_LIMIT);
+  const maxElements = checkInteger('maxElements', own.maxElements, MAX_ELEMENTS_LIMIT);
   if (maxElements instanceof XfccError) {
     return maxElements;
   }
@@ -265,9 +255,10 @@ export const parseDistinguishedName = (dn: string): readonly Rdn[] => {
   if (dn.length > MAX_LENGTH_LIMIT || Buffer.byteLength(dn) > MAX_LENGTH_LIMIT) {
     throw reject('TOO_LONG', MAX_LENGTH_LIMIT);
   }
-  // Encoding it would silently turn a lone surrogate into U+FFFD.
+  // Encoding it would silently turn a lone surrogate into U+FFFD. With the `u`
+  // flag `\p{Cs}` matches only a lone one, and everything before it encodes.
   if (!dn.isWellFormed()) {
-    throw reject('INVALID_DN');
+    throw reject('INVALID_DN', Buffer.byteLength(dn.slice(0, dn.search(/\p{Cs}/u))));
   }
   return Object.freeze(
     parseDn(dn).map((rdn) => Object.freeze(rdn.map((attr) => Object.freeze(attr)))),
